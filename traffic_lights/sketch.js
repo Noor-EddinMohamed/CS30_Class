@@ -6,11 +6,11 @@
 // changing according to time. You may want to investigate the millis()
 // function at https://p5js.org/reference/#/p5/millis
 
-let color = "red";
-let waitTimeGreen = 4000;
-let waitTimeRed = 4000;
-let waitTimeYellow = 1000;
-let lastSwitched = 0;
+let lightColor = "red";
+let lastSwitchedTime = 0;
+let greenDuration = 4000;
+let redDuration = 4000;
+let yellowDuration = 1000;
 
 function setup() {
   createCanvas(600, 600);
@@ -18,23 +18,23 @@ function setup() {
 
 function draw() {
   background(255);
+  updateLightState();
   drawOutlineOfLights();
-  changeColor();
-  colorTimer();
+  showCorrectLight();
 }
 
-function colorTimer() {
-  if (color === "green" && millis() > lastSwitched + waitTimeGreen) {
-    color === "yellow";
-    lastSwitched = millis();
+function updateLightState() {
+  if (lightColor === "red" && millis() > lastSwitchedTime + redDuration) {
+    lightColor = "green";
+    lastSwitchedTime = millis();
   }
-  else if (color === "yellow" && millis() > lastSwitched + waitTimeRed) {
-    color === "red";
-    lastSwitched = millis();
+  else if (lightColor === "green" && millis() > lastSwitchedTime + greenDuration) {
+    lightColor = "yellow";
+    lastSwitchedTime = millis();
   }
-  else if (millis() > lastSwitched + waitTimeYellow) {
-    color === "green";
-    lastSwitched = millis();
+  else if (lightColor === "yellow" && millis() > lastSwitchedTime + yellowDuration) {
+    lightColor = "red";
+    lastSwitchedTime = millis();
   }
 }
 
@@ -51,17 +51,17 @@ function drawOutlineOfLights() {
   ellipse(width/2, height/2 + 65, 50, 50); //bottom
 }
 
-function changeColor() {
-  if (color === "green") {
+function showCorrectLight() {
+  if (lightColor === "red") {
+    fill("red");
+    ellipse(width/2, height/2 - 65, 50, 50); //top
+  }
+  else if (lightColor === "green") {
     fill("green");
     ellipse(width/2, height/2 + 65, 50, 50); //bottom
   }
-  else if (color === "yellow") {
+  else if (lightColor === "yellow") {
     fill("yellow");
     ellipse(width/2, height/2, 50, 50); //middle
-  }
-  else {
-    fill("red");
-    ellipse(width/2, height/2 - 65, 50, 50); //top
   }
 }
