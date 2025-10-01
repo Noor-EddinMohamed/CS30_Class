@@ -5,8 +5,8 @@ let dy = 10;
 let radius = 25;
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
   noStroke();
+  createCanvas(windowWidth, windowHeight);
   x = width / 2;
   y = radius;
 }
@@ -69,4 +69,9 @@ function bounceCircle() {
   if (x < radius || x > width - radius) {
     dx *= -1;
   }
+}
+
+function mouseDragged() {
+  fill("white");
+  line(pmouseX, pmouseY, mouseX, mouseY);
 }
