@@ -1,25 +1,30 @@
 let x;
 let y;
+let startX;
+let startY;
+let drawLine = false
 let dx = 0;
 let dy = 10;
 let radius = 25;
 
 function setup() {
-  noStroke();
   createCanvas(windowWidth, windowHeight);
+  drawingLayer = createGraphics(windowWidth, windowHeight);
+  drawingLayer.background("black")
   x = width / 2;
   y = radius;
 }
 
 function draw() {
-  background("black");
-  drawCircle();
+  image(drawingLayer, 0, 0)
   keyDetect();
   moveCircle();
   bounceCircle();
+  drawCircle();
 }
 
 function drawCircle() {
+  noStroke();
   fill("white");
   circle(x, y, radius * 2);
 }
@@ -45,9 +50,6 @@ function moveCircle() {
 
   if (dx > 0) {
     dx -= 0.1;
-    if (dx < 0.01) {
-      dx = 0;
-    }
   }
   if (dx < 0) {
     dx += 0.1;
@@ -61,7 +63,7 @@ function bounceCircle() {
   else if (y >= height - radius) {
     y = height - radius;
     dy *= -0.9;
-  } 
+    }
   else {
     y = radius; 
     dy *= -0.9;
@@ -71,7 +73,18 @@ function bounceCircle() {
   }
 }
 
-function mouseDragged() {
-  fill("white");
-  line(pmouseX, pmouseY, mouseX, mouseY);
+function mousePressed() {
+  startX = mouseX;
+  startY = mouseY;
+  drawLine = true;
+}
+
+function mouseReleased() {
+  if (drawLine) {
+    drawingLayer.background(0)
+    drawingLayer.strokeWeight(5);
+    drawingLayer.stroke("white");
+    drawingLayer.line(startX, startY, mouseX, mouseY);
+    drawLine = false;
+  }
 }
