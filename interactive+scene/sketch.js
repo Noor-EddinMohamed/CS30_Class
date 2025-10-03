@@ -8,6 +8,12 @@ let drawLine = false;
 let dx = 0;
 let dy = 10;
 let radius = 25;
+let incidenceAngle;
+let lineAngle;
+let reflectionAngle;
+let lineY;
+let lineX;
+let vectorVelocity;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -96,4 +102,14 @@ function mouseReleased() {
 
 function collideCircle() {
   collision = collideLineCircle(startX, startY, endX, endY, x, y, radius * 2); 
+  incidenceAngle = Math.atan(dy/dx);
+  lineY = endY - startY;
+  lineX = endX - startX;
+  lineAngle = Math.tan(lineX / lineY);
+  reflectionAngle = 2 * lineAngle - incidenceAngle;
+  vectorVelocity = Math.sqrt(dx**2 + dy**2);
+  if (collision) {
+    dx = vectorVelocity * Math.cos(reflectionAngle);
+    dy = vectorVelocity * Math.cos(reflectionAngle);
+  }
 }
