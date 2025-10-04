@@ -8,12 +8,7 @@ let drawLine = false;
 let dx = 0;
 let dy = 10;
 let radius = 25;
-let incidenceAngle;
-let lineAngle;
-let reflectionAngle;
-let lineY;
-let lineX;
-let vectorVelocity;
+let collision;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -24,12 +19,14 @@ function setup() {
 }
 
 function draw() {
+  background("black")
   image(drawingLayer, 0, 0);
   keyDetect();
   moveCircle();
   bounceCircle();
   collideCircle();
   drawCircle();
+  linePreview();
 }
 
 function drawCircle() {
@@ -39,16 +36,16 @@ function drawCircle() {
 }
 
 function keyDetect() {
-  if (keyIsDown(68) && dx < 25) { // d key
+  if (keyIsDown(68) && dx < 25 && !collision) { // d key
     dx += 0.5;
   }
-  if (keyIsDown(65) && dx > -25) { // a key
+  if (keyIsDown(65) && dx > -25 && !collision) { // a key
     dx -= 0.5;
   }
-  if (keyIsDown(87) && y >= height - radius) { // w key
+  if (keyIsDown(87) && y >= height - radius && !collision) { // w key
     dy = dy - 10;
   }
-  if (keyIsDown(83) && y < height - radius) { // s key
+  if (keyIsDown(83) && y < height - radius && !collision) { // s key
     dy -= -0.5;
   }
 }
@@ -67,8 +64,13 @@ function moveCircle() {
 
 function bounceCircle() {
   if (y < height - radius && y > radius) {
-    dy += 1;
-  } 
+    if (!collision) {
+      dy += 1
+    }
+    else {
+      dy = 0
+    }
+x  } 
   else if (y >= height - radius) {
     y = height - radius;
     dy *= -0.9;
@@ -83,14 +85,22 @@ function bounceCircle() {
 }
   
 function mousePressed() {
+  drawingLayer.background("black")
   startX = mouseX;
   startY = mouseY;
   drawLine = true;
 }
 
+function linePreview() {
+  if (drawLine) {
+    strokeWeight(5);
+    stroke("white");
+    line(startX, startY, mouseX, mouseY);
+  }
+}
+
 function mouseReleased() {
   if (drawLine) {
-    drawingLayer.background(0);    
     drawingLayer.strokeWeight(5);
     drawingLayer.stroke("white");
     endX = mouseX;
@@ -102,14 +112,26 @@ function mouseReleased() {
 
 function collideCircle() {
   collision = collideLineCircle(startX, startY, endX, endY, x, y, radius * 2); 
-  incidenceAngle = Math.atan(dy/dx);
-  lineY = endY - startY;
-  lineX = endX - startX;
-  lineAngle = Math.tan(lineX / lineY);
-  reflectionAngle = 2 * lineAngle - incidenceAngle;
-  vectorVelocity = Math.sqrt(dx**2 + dy**2);
   if (collision) {
-    dx = vectorVelocity * Math.cos(reflectionAngle);
-    dy = vectorVelocity * Math.cos(reflectionAngle);
-  }
+    let vectorVelocity = createVector(dx, dy);
+
+    // line direction
+    let wallVector = createVector(endX - startX, endY - startY);
+
+    // get normal (perpendicular to the line)
+    let normal = createVector(-wallVector.y, wallVector.x);
+    normal.normalize();
+
+    // reflect velocity across the line
+    vectorVelocity.reflect(normal);
+
+    // update dx, dy
+    dx = vectorVelocity.x * 0.9; // dampen a bit
+    dy = vectorVelocity.y * 0.9;
+
+    // 🔧 push the ball slightly out of the wall
+    // move the circle along the normal by 1 pixel
+    x += normal.x;
+    y += normal.y;
+  } 
 }
