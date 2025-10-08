@@ -25,7 +25,7 @@ function setup() {
 }
 
 function draw() {
-  background("black")
+  background("black");
   image(drawingLayer, 0, 0);
   keyDetect();
   moveCircle();
@@ -74,7 +74,7 @@ function bounceCircle() {
     dy += 1;
   } 
   else if (collision) {
-    dy *= -0.9
+    dy *= -0.9;
   }
   else if (y >= height - radius) { // bouncing off floor
     y = height - radius;
@@ -91,7 +91,7 @@ function bounceCircle() {
 }
   
 function mousePressed() {
-  drawingLayer.background("black")
+  drawingLayer.background("black");
   startX = mouseX;
   startY = mouseY;
   drawLine = true;
