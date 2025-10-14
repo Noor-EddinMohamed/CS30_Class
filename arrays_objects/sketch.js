@@ -5,11 +5,28 @@
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
 
+let color = "red";
+let x1;
+let y1;
+let x2;
+let y2;
+
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  x1 = 0;
+  y1 = height / 2;
+  x2 = width;
+  y2 = height / 2;
 }
 
 function draw() {
-  background(0);
+  background("black");
+  drawLine();
+}
+
+function drawLine() {
+  strokeWeight(10);
+  stroke(color);
+  line(x1, y1, x2, y2);
 }
