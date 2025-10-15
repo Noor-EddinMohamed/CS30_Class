@@ -11,9 +11,13 @@ let y1;
 let x2;
 let y2;
 
-
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  if (windowWidth > windowHeight) {
+    createCanvas(windowHeight, windowHeight);
+  }
+  else {
+    createCanvas(windowWidth, windowWidth);
+  }
   x1 = 0;
   y1 = height / 2;
   x2 = width;
