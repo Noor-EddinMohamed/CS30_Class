@@ -10,6 +10,11 @@ let x1;
 let y1;
 let x2;
 let y2;
+let x;
+let y;
+let amplitude;
+let period;
+const DIAMETER = 50;
 
 function setup() {
   if (windowWidth > windowHeight) {
@@ -18,19 +23,34 @@ function setup() {
   else {
     createCanvas(windowWidth, windowWidth);
   }
+
   x1 = 0;
   y1 = height / 2;
   x2 = width;
   y2 = height / 2;
+  x = x1 + DIAMETER;
+  y = y1;
 }
 
 function draw() {
   background("black");
   drawLine();
+  drawCircle();
+  moveCircle();
 }
 
 function drawLine() {
   strokeWeight(10);
   stroke(color);
-  line(x1, y1, x2, y2);
+  fill(color);
+  line(x1 + DIAMETER, y1, x2 - DIAMETER, y2);
+  circle(x1 + DIAMETER, y1, DIAMETER);
+  circle(x2 - DIAMETER, y2, DIAMETER);
+}
+
+function drawCircle() {
+  fill(color);
+  circle(x, y, DIAMETER);
+  x += 1;
+  y = amplitude * Math.cos(Math.pi * 2 * frameCount / period);
 }
