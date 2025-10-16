@@ -12,9 +12,9 @@ let x2;
 let y2;
 let x;
 let y;
-let amplitude;
-let period;
 const DIAMETER = 50;
+amplitude = 10;
+period = 120;
 
 function setup() {
   if (windowWidth > windowHeight) {
@@ -48,9 +48,12 @@ function drawLine() {
   circle(x2 - DIAMETER, y2, DIAMETER);
 }
 
+
 function drawCircle() {
   fill(color);
   circle(x, y, DIAMETER);
-  x += 1;
-  y = amplitude * Math.cos(Math.pi * 2 * frameCount / period);
+}
+
+function moveCircle() {
+  x = amplitude * Math.cos(Math.pi * 2 * 60 / period);
 }
