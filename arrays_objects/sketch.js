@@ -35,8 +35,8 @@ function setup() {
 function draw() {
   background("black");
   drawLine();
-  drawCircle();
   moveCircle();
+  drawCircle();
 }
 
 function drawLine() {
