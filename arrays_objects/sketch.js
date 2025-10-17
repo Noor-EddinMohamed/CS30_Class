@@ -13,8 +13,10 @@ let y2;
 let x;
 let y;
 const DIAMETER = 50;
-amplitude = 10;
-period = 120;
+let amplitude = 0.5;
+let ang_freq = 1;
+let time;
+let phase = Math.PI;
 
 function setup() {
   if (windowWidth > windowHeight) {
@@ -37,6 +39,7 @@ function draw() {
   drawLine();
   moveCircle();
   drawCircle();
+  time = millis() / 1000;
 }
 
 function drawLine() {
@@ -48,12 +51,12 @@ function drawLine() {
   circle(x2 - DIAMETER, y2, DIAMETER);
 }
 
-
 function drawCircle() {
   fill(color);
   circle(x, y, DIAMETER);
 }
 
 function moveCircle() {
-  x = amplitude * Math.cos(Math.pi * 2 * 60 / period);
+  x = (amplitude * Math.cos(ang_freq * time + phase) + 0.5) * (x2 - DIAMETER / 2 - (x1 + DIAMETER / 2));
+  console.log(x);
 }
