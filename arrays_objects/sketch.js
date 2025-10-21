@@ -5,11 +5,12 @@
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
 
-let color = "red";
-let x1;
-let y1;
-let x2;
-let y2;
+let theLineArray = [];
+// let color = "red";
+// let x1;
+// let y1;
+// let x2;
+// let y2;
 let x;
 let y;
 const DIAMETER = 50;
@@ -26,13 +27,28 @@ function setup() {
     createCanvas(windowWidth, windowWidth);
   }
 
-  x1 = 0;
-  y1 = height / 2;
-  x2 = width;
-  y2 = height / 2;
-  x = x1 + DIAMETER;
-  y = y1;
-  amplitude = x2 - DIAMETER - (x1 + DIAMETER);
+  // x1 = 0;
+  // y1 = height / 2;
+  // x2 = width;
+  // y2 = height / 2;
+  // x = x1 + DIAMETER;
+  // y = y1;
+  amplitude = (width - 2 * DIAMETER) / 2;
+  
+  createLine("red", 0, height / 2, width, height / 2);
+  x = DIAMETER;
+  y = height / 2;
+}
+
+function createLine(_color, _x1, _y1, _x2, _y2) {
+  let theLine = {
+    color: _color,
+    x1: _x1,
+    y1: _y1,
+    x2: _x2,
+    y2: _y2,
+  };
+  theLineArray.push(theLine);
 }
 
 function draw() {
@@ -44,20 +60,23 @@ function draw() {
 }
 
 function drawLine() {
-  strokeWeight(10);
-  stroke(color);
-  fill(color);
-  line(x1 + DIAMETER, y1, x2 - DIAMETER, y2);
-  circle(x1 + DIAMETER, y1, DIAMETER);
-  circle(x2 - DIAMETER, y2, DIAMETER);
+  for (let aLine of theLineArray) {
+    strokeWeight(10);
+    stroke(aLine.color);
+    fill(aLine.color);
+    line(aLine.x1 + DIAMETER, aLine.y1, aLine.x2 - DIAMETER, aLine.y2);
+    circle(aLine.x1 + DIAMETER, aLine.y1, DIAMETER);
+    circle(aLine.x2 - DIAMETER, aLine.y2, DIAMETER);
+  }
 }
 
 function drawCircle() {
-  fill(color);
-  circle(x, y, DIAMETER);
+  for (let aCircle of theLineArray) {
+    fill(aCircle.color);
+    circle(x, y, DIAMETER);
+  }
 }
 
 function moveCircle() {
-  x = amplitude * Math.cos(ANG_FREQ * time);
-  console.log(x);
+  x = -amplitude * Math.cos(ANG_FREQ * time) + amplitude + DIAMETER;
 }
