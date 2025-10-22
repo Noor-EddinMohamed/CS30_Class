@@ -36,8 +36,8 @@ function setup() {
   amplitude = (width - 2 * DIAMETER) / 2;
   
   createLine("red", 0, height / 2, width, height / 2);
-  x = DIAMETER;
-  y = height / 2;
+  // x = DIAMETER;
+  // y = height / 2;
 }
 
 function createLine(_color, _x1, _y1, _x2, _y2) {
@@ -47,6 +47,8 @@ function createLine(_color, _x1, _y1, _x2, _y2) {
     y1: _y1,
     x2: _x2,
     y2: _y2,
+    x: _x1 + DIAMETER,
+    y: _y1,
   };
   theLineArray.push(theLine);
 }
@@ -73,10 +75,12 @@ function drawLine() {
 function drawCircle() {
   for (let aCircle of theLineArray) {
     fill(aCircle.color);
-    circle(x, y, DIAMETER);
+    circle(aCircle.x, aCircle.y, DIAMETER);
   }
 }
 
 function moveCircle() {
-  x = -amplitude * Math.cos(ANG_FREQ * time) + amplitude + DIAMETER;
+  for (let aCircle of theLineArray) {
+    aCircle.x = -amplitude * Math.cos(ANG_FREQ * time) + amplitude + DIAMETER;
+  }
 }
