@@ -6,18 +6,10 @@
 // - describe what you did to take this project "above and beyond"
 
 let theLineArray = [];
-// let color = "red";
-// let x1;
-// let y1;
-// let x2;
-// let y2;
-let x;
-let y;
 const DIAMETER = 50;
-let amplitude;
 const ANG_FREQ = 1;
+let amplitudeX;
 let time;
-const PHASE = Math.PI;
 
 function setup() {
   if (windowWidth > windowHeight) {
@@ -27,17 +19,9 @@ function setup() {
     createCanvas(windowWidth, windowWidth);
   }
 
-  // x1 = 0;
-  // y1 = height / 2;
-  // x2 = width;
-  // y2 = height / 2;
-  // x = x1 + DIAMETER;
-  // y = y1;
-  amplitude = (width - 2 * DIAMETER) / 2;
+  amplitudeX = (width - 2 * DIAMETER) / 2;
   
   createLine("red", 0, height / 2, width, height / 2);
-  // x = DIAMETER;
-  // y = height / 2;
 }
 
 function createLine(_color, _x1, _y1, _x2, _y2) {
@@ -49,6 +33,7 @@ function createLine(_color, _x1, _y1, _x2, _y2) {
     y2: _y2,
     x: _x1 + DIAMETER,
     y: _y1,
+    amplitudeY: _y2 - _y1,
   };
   theLineArray.push(theLine);
 }
@@ -81,6 +66,8 @@ function drawCircle() {
 
 function moveCircle() {
   for (let aCircle of theLineArray) {
-    aCircle.x = -amplitude * Math.cos(ANG_FREQ * time) + amplitude + DIAMETER;
+    aCircle.x = -amplitudeX * Math.cos(ANG_FREQ * time) + amplitudeX + DIAMETER;
+    aCircle.y = -aCircle.amplitudeY * Math.cos(ANG_FREQ * time) + height / 2;
   }
+
 }
