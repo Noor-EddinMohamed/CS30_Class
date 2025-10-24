@@ -7,7 +7,7 @@
 
 let theLineArray = [];
 const DIAMETER = 50;
-const ANG_FREQ = 1;
+const ANG_FREQ = Math.PI;
 let amplitudeX;
 let time;
 
@@ -21,7 +21,7 @@ function setup() {
 
   amplitudeX = (width - 2 * DIAMETER) / 2;
   
-  createLine("red", 0, height / 2, width, height / 2);
+  createLine("red", 0, height / 2, width, height / 2 + 100);
 }
 
 function createLine(_color, _x1, _y1, _x2, _y2) {
@@ -33,7 +33,7 @@ function createLine(_color, _x1, _y1, _x2, _y2) {
     y2: _y2,
     x: _x1 + DIAMETER,
     y: _y1,
-    amplitudeY: _y2 - _y1,
+    amplitudeY: (_y2 - _y1) / 2,
   };
   theLineArray.push(theLine);
 }
@@ -67,7 +67,7 @@ function drawCircle() {
 function moveCircle() {
   for (let aCircle of theLineArray) {
     aCircle.x = -amplitudeX * Math.cos(ANG_FREQ * time) + amplitudeX + DIAMETER;
-    aCircle.y = -aCircle.amplitudeY * Math.cos(ANG_FREQ * time) + height / 2;
+    aCircle.y = -aCircle.amplitudeY * Math.cos(ANG_FREQ * time) + height / 2 + DIAMETER;
   }
 
 }
