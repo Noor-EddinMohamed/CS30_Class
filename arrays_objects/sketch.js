@@ -21,7 +21,7 @@ function setup() {
 
   amplitudeX = (width - 2 * DIAMETER) / 2;
   
-  createLine("red", 0, height / 2, width, height / 2 + 100);
+  createLine("red", 0, height / 2, width, height / 2);
 }
 
 function createLine(_color, _x1, _y1, _x2, _y2) {
@@ -67,7 +67,12 @@ function drawCircle() {
 function moveCircle() {
   for (let aCircle of theLineArray) {
     aCircle.x = -amplitudeX * Math.cos(ANG_FREQ * time) + amplitudeX + DIAMETER;
-    aCircle.y = -aCircle.amplitudeY * Math.cos(ANG_FREQ * time) + height / 2 + DIAMETER;
+    if (aCircle.y2 >= aCircle.y1) {
+      aCircle.y = -aCircle.amplitudeY * Math.cos(ANG_FREQ * time) + height / 2 + DIAMETER * (aCircle.y2 - height / 2) / 100;
+    }
+    else {
+      aCircle.y = -aCircle.amplitudeY * Math.cos(ANG_FREQ * time) + height / 2 + DIAMETER * (aCircle.y1 - height / 2) / 100;
+    }
   }
 
 }
