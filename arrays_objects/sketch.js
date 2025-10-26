@@ -4,11 +4,12 @@
 // October 26 2025
 // Extra for Experts: learned how to model harmonic motion by applying transformations to a sinusoidal wave
 
-let theLineArray = [];
 const DIAMETER = 50;
 const ANG_FREQ = Math.PI;
-let time;
 const TOTAL_LINES = 36; 
+let theLineArray = [];
+let time;
+
 
 function setup() {
   if (windowWidth > windowHeight) {
@@ -24,11 +25,7 @@ function setup() {
   let centerY = height / 2;
   let radius = (width - 2 * DIAMETER) / 2;
 
-  createLine(
-    color(0, 100, 100), // start hue at 0
-    centerX + radius, centerY,
-    centerX - radius, centerY
-  );
+  createLine(color(0, 100, 100), centerX + radius, centerY, centerX - radius, centerY);
 }
 
 function createLine(_color, _x1, _y1, _x2, _y2) {
@@ -80,16 +77,15 @@ function moveCircle() {
   // moves the circle following harmonic motion
   for (let aCircle of theLineArray) {
     aCircle.localTime += deltaTime / 1000;
-    let phase = aCircle.localTime * ANG_FREQ;
 
     // midpoint of line
     let midX = (aCircle.x1 + aCircle.x2) / 2;
-    let dx = (aCircle.x2 - aCircle.x1) / 2;
-    aCircle.x = midX + dx * Math.cos(phase); // extra for experts: harmonic motion math
+    let amplitudeX = (aCircle.x2 - aCircle.x1) / 2;
+    aCircle.x = midX + amplitudeX * Math.cos(aCircle.localTime * ANG_FREQ); // extra for experts: harmonic motion math
 
     let midY = (aCircle.y1 + aCircle.y2) / 2;
-    let dy = (aCircle.y2 - aCircle.y1) / 2;
-    aCircle.y = midY + dy * Math.cos(phase); 
+    let amplitudeY = (aCircle.y2 - aCircle.y1) / 2;
+    aCircle.y = midY + amplitudeY * Math.cos(aCircle.localTime * ANG_FREQ); 
   }
 }
 
