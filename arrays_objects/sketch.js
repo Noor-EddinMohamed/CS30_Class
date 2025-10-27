@@ -14,7 +14,8 @@ let time;
 function setup() {
   if (windowWidth > windowHeight) {
     createCanvas(windowHeight, windowHeight);
-  } else {
+  } 
+  else {
     createCanvas(windowWidth, windowWidth);
   }
 
