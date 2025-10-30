@@ -14,7 +14,7 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   cols = Math.floor(width / CELL_SIZE);
   rows = Math.floor(height / CELL_SIZE);
-  grid = generateEmptyGrid(cols, rows);
+  grid = generateStartingGrid(cols, rows);
 }
 
 function draw() {
@@ -35,7 +35,7 @@ function displayGrid() {
   }
 }
 
-function generateEmptyGrid(cols, rows) {
+function generateStartingGrid(cols, rows) {
   let newGrid = [];
   for (let y = 0; y < rows; y++) {
     newGrid.push([]);
@@ -43,5 +43,6 @@ function generateEmptyGrid(cols, rows) {
       newGrid[y].push(0);
     }
   }
+  newGrid[cols][rows] = 1;
   return newGrid;
 }
