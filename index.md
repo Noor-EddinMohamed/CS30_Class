@@ -9,9 +9,9 @@
 - [Terrain Generation](terrain_generation)
 - [Grid Demo](grid)
 - [Rectangle Neighbours Demo](neighbours)
-- [Grid-Based Game](grid_assignment)
 - [Game of Life](game_of_life)
 
 ## Assignments
 - [Interactive Scene](interactive+scene)
 - [Arrays and Objects](arrays_objects)
+- [Grid-Based Game](grid_assignment)
