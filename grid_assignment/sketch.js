@@ -6,25 +6,32 @@
 // - describe what you did to take this project "above and beyond"
 
 const CELL_SIZE = 50;
-let gameBlocks = {
-  length: 3,
-  firstX: cols,
-  y: rows,
-};
 
 let grid;
 let rows;
 let cols;
+let gameBlocksArray = [];
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   cols = Math.floor(width / CELL_SIZE);
   rows = Math.floor(height / CELL_SIZE);
   grid = generateEmptyGrid(cols, rows);
+
+  createGameBlocks(3, cols, rows);
 }
 
 function draw() {
   displayGrid();
+}
+
+function createGameBlocks(_length, _firstX, _y) {
+  let gameBlocks = {
+    length: _length,
+    firstX: _firstX,
+    y: _y,
+  };
+  gameBlocksArray.push(gameBlocks);
 }
 
 function displayGrid() {
