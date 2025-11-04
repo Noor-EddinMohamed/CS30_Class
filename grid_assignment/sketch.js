@@ -6,7 +6,6 @@
 // - describe what you did to take this project "above and beyond"
 
 const CELL_SIZE = 50;
-
 let grid;
 let rows;
 let cols;
@@ -17,21 +16,32 @@ function setup() {
   cols = Math.floor(width / CELL_SIZE);
   rows = Math.floor(height / CELL_SIZE);
   grid = generateEmptyGrid(cols, rows);
-
-  createGameBlocks(3, cols, rows);
+  gameBlocks = createGameBlocks(1, 1, 1, cols, rows);
 }
 
 function draw() {
   displayGrid();
+  displayGameBlocks();
 }
 
-function createGameBlocks(_length, _firstX, _y) {
+function createGameBlocks(_rightBlock, _middleBlock, _leftBlock, _rightXPos, _yPos) {
   let gameBlocks = {
-    length: _length,
-    firstX: _firstX,
-    y: _y,
+    rightBlock: _rightBlock,
+    middleBlock: _middleBlock,
+    leftBlock: _leftBlock,
+    rightXPos: _rightXPos,
+    yPos: _yPos,
   };
   gameBlocksArray.push(gameBlocks);
+}
+
+function displayGameBlocks() {
+  for (let gameBlocks of gameBlocksArray) {
+    grid[gameBlocks.yPos][gameBlocks.rightXPos] = gameBlocks.rightBlock;
+    grid[gameBlocks.yPos][gameBlocks.rightXPos - 1] = gameBlocks.middleBlock;
+    grid[gameBlocks.yPos][gameBlocks.rightXPos - 2] = gameBlocks.rightBlock;
+    
+  }
 }
 
 function displayGrid() {
