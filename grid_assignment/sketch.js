@@ -9,53 +9,17 @@ const CELL_SIZE = 50;
 let grid;
 let rows;
 let cols;
-let gameBlocksArray = [];
+let theGameBlocks;
+let gameBlocksRow;
+let gameBlocksLength = 3;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
   cols = Math.floor(width / CELL_SIZE);
   rows = Math.floor(height / CELL_SIZE);
   grid = generateEmptyGrid(cols, rows);
-  gameBlocks = createGameBlocks(1, 1, 1, cols, rows);
-}
-
-function draw() {
-  displayGrid();
-  displayGameBlocks();
-}
-
-function createGameBlocks(_rightBlock, _middleBlock, _leftBlock, _rightXPos, _yPos) {
-  let gameBlocks = {
-    rightBlock: _rightBlock,
-    middleBlock: _middleBlock,
-    leftBlock: _leftBlock,
-    rightXPos: _rightXPos,
-    yPos: _yPos,
-  };
-  gameBlocksArray.push(gameBlocks);
-}
-
-function displayGameBlocks() {
-  for (let gameBlocks of gameBlocksArray) {
-    grid[gameBlocks.yPos][gameBlocks.rightXPos] = gameBlocks.rightBlock;
-    grid[gameBlocks.yPos][gameBlocks.rightXPos - 1] = gameBlocks.middleBlock;
-    grid[gameBlocks.yPos][gameBlocks.rightXPos - 2] = gameBlocks.rightBlock;
-    
-  }
-}
-
-function displayGrid() {
-  for (let y = 0; y < rows; y++) {
-    for (let x = 0; x < cols; x++) {
-      if (grid[y][x] === 0) {
-        fill("white");
-      }
-      else if (grid[y][x] === 1) {
-        fill("black");
-      }
-      square(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
-    }
-  }
+  gameBlocksRow = rows;
+  theGameBlocks = createGameBlocks();
 }
 
 function generateEmptyGrid(cols, rows) {
@@ -67,4 +31,37 @@ function generateEmptyGrid(cols, rows) {
     }
   }
   return newGrid;
+}
+
+function createGameBlocks() {
+  let gameBlocks = [];
+  for (let i = 0; i < cols - gameBlocksLength; i++) {
+    gameBlocks.push(0);
+  }
+  for (let i = 0; i < gameBlocksLength; i++) {
+    gameBlocks.push(1);
+  }
+  return gameBlocks;
+}
+
+function draw() {
+  createGameBlocks();
+  displayGrid();
+}
+
+function displayGrid() {
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      if (grid[y][x] === 0) {
+        fill("white");
+      }
+      else if (grid[y][x] === 1) {
+        fill("black");
+      }
+      else if (y === gameBlocksRow) {
+        grid[y][x] = theGameBlocks[x];
+      }
+      square(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
+    }
+  }
 }
