@@ -12,6 +12,7 @@ let cols;
 let theGameBlocks;
 let gameBlocksRow;
 let gameBlocksLength = 3;
+let direction = "left";
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -46,6 +47,7 @@ function createGameBlocks() {
 
 function draw() {
   displayGrid();
+  moveBlocks();
 }
 
 function displayGrid() {
@@ -62,6 +64,27 @@ function displayGrid() {
     if (theGameBlocks[x] === 1) {
       fill("black");
       square(x * CELL_SIZE, gameBlocksRow * CELL_SIZE, CELL_SIZE);
+    }
+  }
+}
+
+function moveBlocks() {
+  if (direction === "left") {
+    if (theGameBlocks[0] !== 1) {
+      let first = theGameBlocks.shift();
+      theGameBlocks.push(first);
+    }
+    else {
+      direction = "right";
+    }
+  }
+  else {
+    if (theGameBlocks[theGameBlocks.length - 1] !== 1) {
+      let first = theGameBlocks.pop();
+      theGameBlocks.unshift(first);
+    }
+    else {
+      direction = "left";
     }
   }
 }
