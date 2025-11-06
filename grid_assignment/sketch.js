@@ -18,7 +18,7 @@ function setup() {
   cols = Math.floor(width / CELL_SIZE);
   rows = Math.floor(height / CELL_SIZE);
   grid = generateEmptyGrid(cols, rows);
-  gameBlocksRow = rows;
+  gameBlocksRow = rows - 1;
   theGameBlocks = createGameBlocks();
 }
 
@@ -45,7 +45,6 @@ function createGameBlocks() {
 }
 
 function draw() {
-  createGameBlocks();
   displayGrid();
 }
 
@@ -55,13 +54,14 @@ function displayGrid() {
       if (grid[y][x] === 0) {
         fill("white");
       }
-      else if (grid[y][x] === 1) {
-        fill("black");
-      }
-      else if (y === gameBlocksRow) {
-        grid[y][x] = theGameBlocks[x];
-      }
       square(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
+    }
+  }
+
+  for (let x = 0; x < cols; x++) {
+    if (theGameBlocks[x] === 1) {
+      fill("black");
+      square(x * CELL_SIZE, gameBlocksRow * CELL_SIZE, CELL_SIZE);
     }
   }
 }
