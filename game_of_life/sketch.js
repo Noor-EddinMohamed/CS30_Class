@@ -1,7 +1,7 @@
 // Game Of Life
 
 const CELL_SIZE = 20;
-const RENDER_ON_FRAME = 5;
+const RENDER_ON_FRAME = 10;
 let grid;
 let rows;
 let cols;

@@ -12,7 +12,9 @@ let cols;
 let theGameBlocks;
 let gameBlocksRow;
 let gameBlocksLength = 3;
-let direction = "left";
+let direction = "left"; 
+const RENDER_ON_FRAME = 10;
+let spacePressed = false;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -46,8 +48,10 @@ function createGameBlocks() {
 }
 
 function draw() {
+  if (!spacePressed && frameCount % RENDER_ON_FRAME === 0) {
+    moveBlocks();
+  }
   displayGrid();
-  moveBlocks();
 }
 
 function displayGrid() {
@@ -87,4 +91,11 @@ function moveBlocks() {
       direction = "left";
     }
   }
+}
+
+function keyPressed() {
+  if (key === "32") {  // spacebar
+    spacePressed = !spacePressed;
+  }
+  console.log(spacePressed);
 }
