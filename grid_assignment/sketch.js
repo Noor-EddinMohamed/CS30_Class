@@ -5,7 +5,7 @@
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
 
-const CELL_SIZE = 50;
+let cellSize;
 let grid;
 let rows;
 let cols;
@@ -13,13 +13,14 @@ let theGameBlocks;
 let gameBlocksRow;
 let gameBlocksLength = 3;
 let direction = "left"; 
-const RENDER_ON_FRAME = 10;
+let renderOnFrame = 10;
 let spacePressed = false;
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
-  cols = Math.floor(width / CELL_SIZE);
-  rows = Math.floor(height / CELL_SIZE);
+  cols = 7;
+  rows = 15;
+  cellSize = Math.floor(min(windowWidth / cols, windowHeight / rows)); // min is a handy built-in function that just makes it so I don't have to write it if blah blah > blah then blah blah
+  createCanvas(cols * cellSize, rows * cellSize);
   grid = generateEmptyGrid(cols, rows);
   gameBlocksRow = rows - 1;
   theGameBlocks = createGameBlocks();
@@ -48,28 +49,10 @@ function createGameBlocks() {
 }
 
 function draw() {
-  if (!spacePressed && frameCount % RENDER_ON_FRAME === 0) {
+  if (!spacePressed && frameCount % renderOnFrame === 0) {
     moveBlocks();
   }
   displayGrid();
-}
-
-function displayGrid() {
-  for (let y = 0; y < rows; y++) {
-    for (let x = 0; x < cols; x++) {
-      if (grid[y][x] === 0) {
-        fill("white");
-      }
-      square(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
-    }
-  }
-
-  for (let x = 0; x < cols; x++) {
-    if (theGameBlocks[x] === 1) {
-      fill("black");
-      square(x * CELL_SIZE, gameBlocksRow * CELL_SIZE, CELL_SIZE);
-    }
-  }
 }
 
 function moveBlocks() {
@@ -77,24 +60,77 @@ function moveBlocks() {
     if (theGameBlocks[0] !== 1) {
       let first = theGameBlocks.shift();
       theGameBlocks.push(first);
-    }
+    } 
     else {
       direction = "right";
     }
-  }
-  else {
+  } else {
     if (theGameBlocks[theGameBlocks.length - 1] !== 1) {
-      let first = theGameBlocks.pop();
-      theGameBlocks.unshift(first);
-    }
+      let last = theGameBlocks.pop();
+      theGameBlocks.unshift(last);
+    } 
     else {
       direction = "left";
     }
   }
 }
 
+function displayGrid() {
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      if (grid[y][x] === 1) {
+        fill("black");
+      }
+      else {
+      fill("white");
+      }
+      square(x * cellSize, y * cellSize, cellSize);
+    }
+  }
+
+  fill("red");
+  for (let x = 0; x < cols; x++) {
+    if (theGameBlocks[x] === 1) {
+      square(x * cellSize, gameBlocksRow * cellSize, cellSize);
+    }
+  }
+}
+
 function keyPressed() {
-  if (key === " ") {  // spacebar
-    spacePressed = !spacePressed;
+  if (keyCode === 32) {
+    spacePressed = true;
+
+    if (gameBlocksRow < rows - 1) {
+      for (let x = 0; x < cols; x++) {
+        if (grid[gameBlocksRow + 1][x] === 0) {
+          theGameBlocks[x] = 0;
+        }
+      }
+    }
+
+    let count = 0;
+    for (let x = 0; x < theGameBlocks.length; x++) {
+      if (theGameBlocks[x] === 1) {
+        count++;
+      }
+    }
+    gameBlocksLength = count;
+
+
+    if (!theGameBlocks.includes(1)) {
+      noLoop();
+      return;
+    }
+
+    for (let x = 0; x < cols; x++) {
+      if (theGameBlocks[x] === 1) {
+        grid[gameBlocksRow][x] = 1;
+      }
+    }
+
+    gameBlocksRow--;
+    theGameBlocks = createGameBlocks();
+    renderOnFrame -= 0.5;
+    spacePressed = false;
   }
 }
