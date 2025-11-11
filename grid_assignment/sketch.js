@@ -94,8 +94,7 @@ function moveBlocks() {
 }
 
 function keyPressed() {
-  if (key === "32") {  // spacebar
+  if (key === " ") {  // spacebar
     spacePressed = !spacePressed;
   }
-  console.log(spacePressed);
 }
