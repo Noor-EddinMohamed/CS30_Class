@@ -3,7 +3,8 @@
 // November 12
 //
 // Extra for Experts:
-// - describe what you did to take this project "above and beyond"
+// learned p5js sound from this video https://www.youtube.com/watch?v=Pn1g1wjxl_0
+// sound effect from asmarttv2022 on Pixabay
 
 let cellSize;
 let grid;
@@ -16,11 +17,17 @@ let direction = "left";
 let frameCounter = 0;
 let renderOnFrame = 10;
 let spacePressed = false;
+let placeBlockSound;
+
+
+function preload() {
+  placeBlockSound = loadSound("block_place_sound_effect.mp3");
+}
 
 function setup() {
   cols = 7;
   rows = 15;
-  if (windowWidth / cols < windowHeight / rows) {
+  if (windowWidth / cols < windowHeight / rows) { // cellSize dependent on window size
     cellSize = Math.floor(windowWidth / cols);
   } 
   else {
@@ -44,6 +51,7 @@ function generateEmptyGrid(cols, rows) {
 }
 
 function createGameBlocks() {
+  // gameBlocks are an array of 0s (blank) and 1s (block)
   let gameBlocks = [];
   for (let i = 0; i < cols - gameBlocksLength; i++) {
     gameBlocks.push(0);
@@ -56,7 +64,7 @@ function createGameBlocks() {
 
 function draw() {
   frameCounter++;
-  if (!spacePressed && frameCounter >= renderOnFrame) {
+  if (!spacePressed && frameCounter >= renderOnFrame) { // so it doesn't move every single frame
     moveBlocks();
     frameCounter = 0; 
   }
@@ -67,10 +75,11 @@ function moveBlocks() {
   let leftEdge;
   let rightEdge;
 
+  // edge detection
   for (let i = 0; i < theGameBlocks.length; i++) {
     if (theGameBlocks[i] === 1) {
       leftEdge = i;
-      break;
+      break; // ends loop when we find leftEdge
     }
   }
   for (let i = theGameBlocks.length - 1; i >= 0; i--) {
@@ -80,37 +89,40 @@ function moveBlocks() {
     }
   }
 
+  // bounces off edges 
   if (direction === "right" && rightEdge >= cols - 1) {
     direction = "left";
   }
   if (direction === "left" && leftEdge <= 0) {
     direction = "right";
   }
-
-  // move blocks in current direction
+ 
+  // how my gameBlocks move is basically it pops the value at the front of the array (0 or 1) and reinserts it at the back and vice versa to make it look like its moving
   if (direction === "right") {
     theGameBlocks.pop();
     theGameBlocks.unshift(0);
-  } else {
+  } 
+  else {
     theGameBlocks.shift();
     theGameBlocks.push(0);
   }
 }
 
 function displayGrid() {
-  for (let y = 0; y < rows; y++) {
+  // draws grid like we learnt in class
+  for (let y = 0; y < rows; y++) { 
     for (let x = 0; x < cols; x++) {
-      if (grid[y][x] === 1) {
+      if (grid[y][x] === 1) { 
         fill("black");
       }
       else {
-      fill("white");
+        fill("white");
       }
       square(x * cellSize, y * cellSize, cellSize);
     }
   }
 
-  fill("red");
+  fill("red"); // player
   for (let x = 0; x < cols; x++) {
     if (theGameBlocks[x] === 1) {
       square(x * cellSize, gameBlocksRow * cellSize, cellSize);
@@ -119,9 +131,10 @@ function displayGrid() {
 }
 
 function keyPressed() {
-  if (keyCode === 32) {
+  if (key === " ") {
     spacePressed = true;
 
+    // if overhanging than it dissapears
     if (gameBlocksRow < rows - 1) {
       for (let x = 0; x < cols; x++) {
         if (grid[gameBlocksRow + 1][x] === 0) {
@@ -130,6 +143,7 @@ function keyPressed() {
       }
     }
 
+    // sets length of gameBlocks (number of 1s)
     let count = 0;
     for (let x = 0; x < theGameBlocks.length; x++) {
       if (theGameBlocks[x] === 1) {
@@ -137,22 +151,33 @@ function keyPressed() {
       }
     }
     gameBlocksLength = count;
-
-
-    if (!theGameBlocks.includes(1)) {
+    
+    // checks if the gameBlocks still exist (1s in array), if not then end game
+    let sound = true;
+    let num1s = 0;
+    for (let block of theGameBlocks) {
+      if (block === 1) {
+        num1s += 1;
+      }
+    }
+    if (num1s === 0) {
       noLoop();
-      return;
+      sound = false;
     }
 
+    // drawing gameBlocks to grid
     for (let x = 0; x < cols; x++) {
       if (theGameBlocks[x] === 1) {
         grid[gameBlocksRow][x] = 1;
+        if (sound) {
+          placeBlockSound.play();
+        }
       }
     }
 
     gameBlocksRow--;
-    theGameBlocks = createGameBlocks();
-    renderOnFrame -= 0.5;
+    theGameBlocks = createGameBlocks(); // new blocks
+    renderOnFrame -= 0.5; // gets faster
     spacePressed = false;
   }
 }
