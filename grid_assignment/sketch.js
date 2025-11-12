@@ -13,13 +13,19 @@ let theGameBlocks;
 let gameBlocksRow;
 let gameBlocksLength = 3;
 let direction = "left"; 
+let frameCounter = 0;
 let renderOnFrame = 10;
 let spacePressed = false;
 
 function setup() {
   cols = 7;
   rows = 15;
-  cellSize = Math.floor(min(windowWidth / cols, windowHeight / rows)); // min is a handy built-in function that just makes it so I don't have to write it if blah blah > blah then blah blah
+  if (windowWidth / cols < windowHeight / rows) {
+    cellSize = Math.floor(windowWidth / cols);
+  } 
+  else {
+    cellSize = Math.floor(windowHeight / rows);
+  }  
   createCanvas(cols * cellSize, rows * cellSize);
   grid = generateEmptyGrid(cols, rows);
   gameBlocksRow = rows - 1;
@@ -49,29 +55,45 @@ function createGameBlocks() {
 }
 
 function draw() {
-  if (!spacePressed && frameCount % renderOnFrame === 0) {
+  frameCounter++;
+  if (!spacePressed && frameCounter >= renderOnFrame) {
     moveBlocks();
+    frameCounter = 0; 
   }
   displayGrid();
 }
 
 function moveBlocks() {
-  if (direction === "left") {
-    if (theGameBlocks[0] !== 1) {
-      let first = theGameBlocks.shift();
-      theGameBlocks.push(first);
-    } 
-    else {
-      direction = "right";
+  let leftEdge;
+  let rightEdge;
+
+  for (let i = 0; i < theGameBlocks.length; i++) {
+    if (theGameBlocks[i] === 1) {
+      leftEdge = i;
+      break;
     }
+  }
+  for (let i = theGameBlocks.length - 1; i >= 0; i--) {
+    if (theGameBlocks[i] === 1) {
+      rightEdge = i;
+      break;
+    }
+  }
+
+  if (direction === "right" && rightEdge >= cols - 1) {
+    direction = "left";
+  }
+  if (direction === "left" && leftEdge <= 0) {
+    direction = "right";
+  }
+
+  // move blocks in current direction
+  if (direction === "right") {
+    theGameBlocks.pop();
+    theGameBlocks.unshift(0);
   } else {
-    if (theGameBlocks[theGameBlocks.length - 1] !== 1) {
-      let last = theGameBlocks.pop();
-      theGameBlocks.unshift(last);
-    } 
-    else {
-      direction = "left";
-    }
+    theGameBlocks.shift();
+    theGameBlocks.push(0);
   }
 }
 
