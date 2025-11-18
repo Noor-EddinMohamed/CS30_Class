@@ -13,6 +13,7 @@
 - [Basic OOP](basic_oop)
 - [Walker OOP](walker_oop)
 - [Fireworks OOP](fireworks_oop)
+- [Nodes OOP](nodes_oop)
 
 ## Assignments
 - [Interactive Scene](interactive+scene)
