@@ -12,6 +12,7 @@
 - [Game of Life](game_of_life)
 - [Basic OOP](basic_oop)
 - [Walker OOP](walker_oop)
+- [Fireworks OOP](fireworks_oop)
 
 ## Assignments
 - [Interactive Scene](interactive+scene)
