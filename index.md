@@ -14,6 +14,7 @@
 - [Walker OOP](walker_oop)
 - [Fireworks OOP](fireworks_oop)
 - [Nodes OOP](nodes_oop)
+- [OOP Inheritence](inheritence)
 
 ## Assignments
 - [Interactive Scene](interactive+scene)
