@@ -22,3 +22,4 @@
 - [Interactive Scene](interactive+scene)
 - [Arrays and Objects](arrays_objects)
 - [Grid-Based Game](grid_assignment)
+- [Abiotic Synthesis](abiotic_synthesis)

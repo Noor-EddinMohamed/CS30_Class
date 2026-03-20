@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abiotic Synthesis Lab</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0a0a0f; }
+        .panel { position: fixed; background: rgba(10, 10, 20, 0.92); padding: 16px; border-radius: 12px; color: #e0e0e0; z-index: 100; backdrop-filter: blur(10px); border: 1px solid rgba(100, 150, 255, 0.2); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); }
+        #controls { top: 20px; left: 20px; width: 270px; max-height: calc(100vh - 40px); overflow-y: auto; }
+        #controls::-webkit-scrollbar { width: 5px; }
+        #controls::-webkit-scrollbar-thumb { background: rgba(100,150,255,0.3); border-radius: 3px; }
+        h2 { margin-bottom: 10px; font-size: 0.9em; color: #7fbaff; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid rgba(100, 150, 255, 0.3); padding-bottom: 8px; }
+        h3 { margin: 12px 0 8px 0; font-size: 0.75em; color: #7fbaff; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+        .slider-group { margin-bottom: 10px; }
+        .slider-group label { display: flex; justify-content: space-between; margin-bottom: 3px; font-size: 0.75em; color: #a0c0ff; }
+        .slider-container { position: relative; height: 18px; }
+        .slider-group input[type="range"] { width: 100%; height: 4px; -webkit-appearance: none; background: linear-gradient(90deg, #1a2a4a, #2a4a7a); border-radius: 2px; outline: none; position: relative; z-index: 2; }
+        .slider-group input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: linear-gradient(135deg, #5f9fff, #3070d0); border-radius: 50%; cursor: pointer; box-shadow: 0 0 8px rgba(100, 150, 255, 0.5); }
+        .slider-markers { position: absolute; top: 0; left: 0; right: 0; height: 100%; pointer-events: none; z-index: 1; }
+        .marker { position: absolute; top: -1px; transform: translateX(-50%); }
+        .marker-line { width: 2px; height: 8px; border-radius: 1px; }
+        .marker-primordial .marker-line { background: #f39c12; }
+        .marker-modern .marker-line { background: #3498db; }
+        .oxygen-warning { background: rgba(231, 76, 60, 0.2); border: 1px solid rgba(231, 76, 60, 0.4); border-radius: 6px; padding: 6px; margin-top: 8px; font-size: 0.68em; color: #e74c3c; display: none; }
+        .oxygen-warning.visible { display: block; }
+        #challenges { top: 20px; right: 20px; width: 280px; max-height: 45vh; overflow-y: auto; }
+        #challenges::-webkit-scrollbar { width: 4px; }
+        #challenges::-webkit-scrollbar-thumb { background: rgba(100,150,255,0.3); border-radius: 2px; }
+        .challenge-card { background: rgba(255,255,255,0.03); border-radius: 8px; padding: 10px; margin-bottom: 8px; border-left: 3px solid #444; transition: all 0.3s; }
+        .challenge-card.active { border-left-color: #f39c12; background: rgba(243, 156, 18, 0.08); }
+        .challenge-card.completed { border-left-color: #27ae60; background: rgba(39, 174, 96, 0.08); }
+        .challenge-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .challenge-title { font-weight: bold; font-size: 0.82em; color: #fff; }
+        .challenge-badge { font-size: 1.1em; }
+        .challenge-desc { font-size: 0.7em; color: #999; margin-bottom: 6px; line-height: 1.3; }
+        .challenge-progress { height: 5px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+        .challenge-progress-fill { height: 100%; background: linear-gradient(90deg, #f39c12, #e67e22); border-radius: 3px; transition: width 0.3s; }
+        .challenge-progress-fill.complete { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+        .challenge-hint { font-size: 0.65em; color: #f39c12; margin-top: 5px; font-style: italic; display: none; }
+        .challenge-card.active .challenge-hint { display: block; }
+        .challenge-stats { font-size: 0.68em; color: #666; margin-top: 4px; }
+        #score-panel { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(10, 10, 20, 0.92); padding: 10px 25px; border-radius: 25px; z-index: 100; backdrop-filter: blur(10px); border: 1px solid rgba(100, 150, 255, 0.2); display: flex; gap: 25px; align-items: center; }
+        .score-item { text-align: center; }
+        .score-label { font-size: 0.6em; color: #7fbaff; text-transform: uppercase; letter-spacing: 1px; }
+        .score-value { font-size: 1.4em; font-weight: bold; color: #fff; }
+        .score-value.molecules { color: #2ecc71; }
+        .score-value.time { color: #f39c12; }
+        .score-value.discoveries { color: #9b59b6; }
+        #discoveries { bottom: 20px; right: 20px; width: 260px; max-height: 220px; }
+        .discovery-list { max-height: 160px; overflow-y: auto; }
+        .discovery-list::-webkit-scrollbar { width: 4px; }
+        .discovery-list::-webkit-scrollbar-thumb { background: rgba(100,150,255,0.3); border-radius: 2px; }
+        .discovery-item { background: rgba(255,255,255,0.04); border-radius: 6px; padding: 8px; margin-bottom: 6px; border-left: 3px solid #9b59b6; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(15px); } to { opacity: 1; transform: translateX(0); } }
+        .discovery-item.locked { opacity: 0.35; border-left-color: #444; }
+        .discovery-title { font-weight: bold; font-size: 0.78em; color: #9b59b6; margin-bottom: 3px; }
+        .discovery-item.locked .discovery-title { color: #555; }
+        .discovery-text { font-size: 0.68em; color: #999; line-height: 1.35; }
+        .discovery-item.locked .discovery-text { color: #444; }
+        #eventLog { bottom: 20px; left: 50%; transform: translateX(-50%); width: 320px; max-height: 120px; }
+        #eventList { max-height: 75px; overflow-y: auto; font-size: 0.68em; }
+        #eventList::-webkit-scrollbar { width: 3px; }
+        #eventList::-webkit-scrollbar-thumb { background: rgba(100,150,255,0.3); border-radius: 2px; }
+        .event { padding: 3px 6px; margin-bottom: 2px; background: rgba(255,255,255,0.04); border-radius: 3px; border-left: 2px solid #5fff9f; animation: fadeIn 0.3s ease; }
+        .event.warning { border-left-color: #e74c3c; }
+        .event.discovery { border-left-color: #9b59b6; }
+        .event.challenge { border-left-color: #f39c12; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+        .event-time { color: #444; font-size: 0.85em; }
+        .event-result { color: #5fff9f; font-weight: bold; }
+        .event-warning-text { color: #e74c3c; }
+        .event-discovery-text { color: #9b59b6; }
+        .event-challenge-text { color: #f39c12; }
+        .btn-row { display: flex; gap: 5px; margin-top: 8px; }
+        button { flex: 1; padding: 7px 4px; background: linear-gradient(135deg, #3070d0, #205090); border: none; border-radius: 6px; color: white; cursor: pointer; font-size: 0.68em; transition: all 0.3s; }
+        button:hover { background: linear-gradient(135deg, #4080e0, #3060a0); box-shadow: 0 4px 15px rgba(50, 100, 200, 0.4); }
+        button.primordial { background: linear-gradient(135deg, #d35400, #e67e22); }
+        button.modern { background: linear-gradient(135deg, #2980b9, #3498db); }
+        .mode-toggle { display: flex; background: rgba(255,255,255,0.08); border-radius: 6px; padding: 2px; margin-bottom: 12px; }
+        .mode-btn { flex: 1; padding: 6px; border: none; background: transparent; color: #666; cursor: pointer; border-radius: 5px; font-size: 0.7em; transition: all 0.3s; }
+        .mode-btn.active { background: linear-gradient(135deg, #3070d0, #205090); color: white; }
+        #info { top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; padding: 30px; max-width: 480px; z-index: 200; }
+        #info h1 { color: #7fbaff; margin-bottom: 12px; font-size: 1.3em; }
+        #info p { color: #aaa; margin-bottom: 10px; font-size: 0.85em; line-height: 1.5; }
+        #info .hint { background: rgba(243, 156, 18, 0.12); border: 1px solid rgba(243, 156, 18, 0.25); border-radius: 8px; padding: 10px; margin: 12px 0; font-size: 0.78em; color: #f39c12; }
+        .mode-select { display: flex; gap: 10px; margin-top: 18px; justify-content: center; }
+        .mode-select button { padding: 14px 22px; font-size: 0.85em; flex: none; }
+        .mode-select button.sandbox { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+        .mode-select button.challenge-mode { background: linear-gradient(135deg, #8e44ad, #9b59b6); }
+        #achievement-popup { position: fixed; top: 75px; left: 50%; transform: translateX(-50%) translateY(-15px); background: linear-gradient(135deg, rgba(39, 174, 96, 0.95), rgba(46, 204, 113, 0.95)); padding: 12px 25px; border-radius: 12px; z-index: 300; opacity: 0; transition: all 0.4s; pointer-events: none; text-align: center; box-shadow: 0 8px 30px rgba(39, 174, 96, 0.4); }
+        #achievement-popup.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        #achievement-popup.fail { background: linear-gradient(135deg, rgba(192, 57, 43, 0.95), rgba(231, 76, 60, 0.95)); box-shadow: 0 8px 30px rgba(231, 76, 60, 0.4); }
+        .achievement-icon { font-size: 1.8em; margin-bottom: 4px; }
+        .achievement-title { font-weight: bold; font-size: 1em; color: white; }
+        .achievement-desc { font-size: 0.75em; color: rgba(255,255,255,0.85); }
+        .timer-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 8px; overflow: hidden; display: none; }
+        .timer-bar.active { display: block; }
+        .timer-fill { height: 100%; background: linear-gradient(90deg, #e74c3c, #f39c12); transition: width 0.1s linear; }
+        .marker-legend { display: flex; gap: 12px; margin-bottom: 10px; padding: 6px; background: rgba(255,255,255,0.03); border-radius: 5px; font-size: 0.65em; justify-content: center; }
+        .marker-legend-item { display: flex; align-items: center; gap: 4px; }
+        .marker-legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .marker-legend-dot.primordial { background: #f39c12; }
+        .marker-legend-dot.modern { background: #3498db; }
+        .legend-section { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(100, 150, 255, 0.15); }
+        .legend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; font-size: 0.68em; }
+        .legend-item { display: flex; align-items: center; gap: 5px; }
+        .legend-color { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    </style>
+</head>
+<body>
+    <div id="info" class="panel">
+        <h1>🧪 Abiotic Synthesis Lab</h1>
+        <p>Recreate the conditions of early Earth and discover how the first organic molecules formed!</p>
+        <div class="hint">💡 Based on the Miller-Urey experiment (1952) that proved life's building blocks could form from simple chemicals.</div>
+        <p>Choose your mode:</p>
+        <div class="mode-select">
+            <button class="sandbox" id="startSandbox">🔬 Sandbox<br><span style="font-size:0.7em;opacity:0.8">Free exploration</span></button>
+            <button class="challenge-mode" id="startChallenge">🎯 Challenges<br><span style="font-size:0.7em;opacity:0.8">Guided puzzles</span></button>
+        </div>
+    </div>
+    
+    <div id="achievement-popup">
+        <div class="achievement-icon">🏆</div>
+        <div class="achievement-title">Challenge Complete!</div>
+        <div class="achievement-desc">Description here</div>
+    </div>
+
+    <div id="score-panel" style="display:none;">
+        <div class="score-item"><div class="score-label">Molecules</div><div class="score-value molecules" id="totalMolecules">0</div></div>
+        <div class="score-item"><div class="score-label">Time</div><div class="score-value time" id="timeElapsed">0:00</div></div>
+        <div class="score-item"><div class="score-label">Discoveries</div><div class="score-value discoveries" id="discoveriesCount">0/8</div></div>
+    </div>
+
+    <div id="controls" class="panel" style="display:none;">
+        <h2>⚗️ Atmosphere Controls</h2>
+        <div class="mode-toggle">
+            <button class="mode-btn active" id="modeSandbox">🔬 Sandbox</button>
+            <button class="mode-btn" id="modeChallenges">🎯 Challenges</button>
+        </div>
+        <div class="marker-legend">
+            <div class="marker-legend-item"><div class="marker-legend-dot primordial"></div><span>Primordial</span></div>
+            <div class="marker-legend-item"><div class="marker-legend-dot modern"></div><span>Modern</span></div>
+        </div>
+        <div class="slider-group">
+            <label><span>⚡ Lightning</span><span id="lightningVal">50%</span></label>
+            <div class="slider-container">
+                <input type="range" id="lightning" min="0" max="100" value="50">
+                <div class="slider-markers"><div class="marker marker-primordial" style="left: 70%"><div class="marker-line"></div></div><div class="marker marker-modern" style="left: 40%"><div class="marker-line"></div></div></div>
+            </div>
+        </div>
+        <div class="slider-group">
+            <label><span>🌡️ Temperature</span><span id="tempVal">80°C</span></label>
+            <div class="slider-container">
+                <input type="range" id="temperature" min="0" max="150" value="80">
+                <div class="slider-markers"><div class="marker marker-primordial" style="left: 53%"><div class="marker-line"></div></div><div class="marker marker-modern" style="left: 10%"><div class="marker-line"></div></div></div>
+            </div>
+        </div>
+        <div class="slider-group">
+            <label><span>💨 Methane CH₄</span><span id="methaneVal">30%</span></label>
+            <div class="slider-container">
+                <input type="range" id="methane" min="0" max="100" value="30">
+                <div class="slider-markers"><div class="marker marker-primordial" style="left: 35%"><div class="marker-line"></div></div><div class="marker marker-modern" style="left: 0%"><div class="marker-line"></div></div></div>
+            </div>
+        </div>
+        <div class="slider-group">
+            <label><span>🔵 Ammonia NH₃</span><span id="ammoniaVal">25%</span></label>
+            <div class="slider-container">
+                <input type="range" id="ammonia" min="0" max="100" value="25">
+                <div class="slider-markers"><div class="marker marker-primordial" style="left: 30%"><div class="marker-line"></div></div><div class="marker marker-modern" style="left: 0%"><div class="marker-line"></div></div></div>
+            </div>
+        </div>
+        <div class="slider-group">
+            <label><span>⚪ Hydrogen H₂</span><span id="hydrogenVal">35%</span></label>
+            <div class="slider-container">
+                <input type="range" id="hydrogen" min="0" max="100" value="35">
+                <div class="slider-markers"><div class="marker marker-primordial" style="left: 40%"><div class="marker-line"></div></div><div class="marker marker-modern" style="left: 0%"><div class="marker-line"></div></div></div>
+            </div>
+        </div>
+        <div class="slider-group">
+            <label><span>💧 Water H₂O</span><span id="waterVal">40%</span></label>
+            <div class="slider-container">
+                <input type="range" id="water" min="0" max="100" value="40">
+                <div class="slider-markers"><div class="marker marker-primordial" style="left: 50%"><div class="marker-line"></div></div><div class="marker marker-modern" style="left: 25%"><div class="marker-line"></div></div></div>
+            </div>
+        </div>
+        <div class="slider-group">
+            <label><span>☀️ UV Radiation</span><span id="uvVal">30%</span></label>
+            <div class="slider-container">
+                <input type="range" id="uv" min="0" max="100" value="30">
+                <div class="slider-markers"><div class="marker marker-primordial" style="left: 80%"><div class="marker-line"></div></div><div class="marker marker-modern" style="left: 20%"><div class="marker-line"></div></div></div>
+            </div>
+        </div>
+        <div class="slider-group">
+            <label><span>🔴 Oxygen O₂</span><span id="oxygenVal">0%</span></label>
+            <div class="slider-container">
+                <input type="range" id="oxygen" min="0" max="100" value="0">
+                <div class="slider-markers"><div class="marker marker-primordial" style="left: 0%"><div class="marker-line"></div></div><div class="marker marker-modern" style="left: 21%"><div class="marker-line"></div></div></div>
+            </div>
+        </div>
+        <div class="oxygen-warning" id="oxygenWarning">⚠️ Oxygen destroys organic molecules! Early Earth had almost no free oxygen.</div>
+        <div class="btn-row">
+            <button class="primordial" id="presetPrimordial">🌋 Primordial</button>
+            <button class="modern" id="presetModern">🌍 Modern</button>
+            <button id="resetBtn">🔄 Reset</button>
+        </div>
+        <div class="timer-bar" id="challengeTimer"><div class="timer-fill" id="timerFill"></div></div>
+        <div class="legend-section">
+            <h3>🔬 Molecule Key</h3>
+            <div class="legend-grid">
+                <div class="legend-item"><div class="legend-color" style="background: #ff6b6b;"></div>CH₄ Methane</div>
+                <div class="legend-item"><div class="legend-color" style="background: #4ecdc4;"></div>NH₃ Ammonia</div>
+                <div class="legend-item"><div class="legend-color" style="background: #f0f0f0;"></div>H₂ Hydrogen</div>
+                <div class="legend-item"><div class="legend-color" style="background: #74b9ff;"></div>H₂O Water</div>
+                <div class="legend-item"><div class="legend-color" style="background: #e74c3c;"></div>O₂ Oxygen</div>
+                <div class="legend-item"><div class="legend-color" style="background: #fd79a8;"></div>Amino Acid</div>
+                <div class="legend-item"><div class="legend-color" style="background: #00b894;"></div>Nucleotide</div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="challenges" class="panel" style="display:none;">
+        <h2>🎯 Challenges</h2>
+        <div id="challengeList"></div>
+    </div>
+    
+    <div id="discoveries" class="panel" style="display:none;">
+        <h2>📖 Discovery Journal</h2>
+        <div class="discovery-list" id="discoveryList"></div>
+    </div>
+    
+    <div id="eventLog" class="panel" style="display:none;">
+        <h2>🔬 Reaction Log</h2>
+        <div id="eventList"></div>
+    </div>
+
+    <script>
+        let gameMode = 'sandbox';
+        let simulationStarted = false;
+        let startTime = 0;
+        let totalOrganicMolecules = 0;
+        let oxygenKills = 0;
+        let aminoAcidCount = 0;
+        let nucleotideCount = 0;
+        let currentChallenge = 0;
+        let simBounds = { x: 0, y: 0, w: 0, h: 0 };
+        
+        const CHALLENGES = [
+            { id: 'first_molecule', title: 'First Spark of Life', desc: 'Create your first organic molecule', hint: 'Add energy (lightning/UV) to a mix of reducing gases', target: 1, progress: 0, completed: false, type: 'molecules' },
+            { id: 'five_molecules', title: 'Chain Reaction', desc: 'Create 5 organic molecules', hint: 'Balance temperature around 80°C for optimal reactions', target: 5, progress: 0, completed: false, type: 'molecules' },
+            { id: 'oxygen_disaster', title: 'The Great Oxidation', desc: 'Watch oxygen destroy 3 organic molecules', hint: 'Create molecules first, then add oxygen to see what happens', target: 3, progress: 0, completed: false, type: 'oxygen_kills' },
+            { id: 'no_energy', title: 'Dead World', desc: 'Prove nothing happens without energy (wait 10s)', hint: 'Set lightning AND UV to zero. Nothing will react!', target: 10, progress: 0, completed: false, type: 'no_energy_time', timeStarted: 0 },
+            { id: 'optimal_conditions', title: 'Miller-Urey Recreation', desc: 'Match primordial Earth conditions (>85% match)', hint: 'Align all sliders with the orange markers', target: 85, progress: 0, completed: false, type: 'primordial_match' },
+            { id: 'modern_earth', title: 'Why Not Today?', desc: 'Observe modern Earth conditions for 15 seconds', hint: 'Click "Modern" preset - notice how oxygen prevents synthesis!', target: 15, progress: 0, completed: false, type: 'modern_fail', timeStarted: 0 },
+            { id: 'amino_acids', title: 'Protein Precursors', desc: 'Create 5 amino acids (not nucleotides)', hint: 'Amino acids form from CH₄ + NH₃ reactions specifically', target: 5, progress: 0, completed: false, type: 'amino_acids' },
+            { id: 'nucleotides', title: 'Genetic Blueprints', desc: 'Create 5 nucleotides (not amino acids)', hint: 'Nucleotides form from reactions involving H₂O - try CH₄ + H₂O or NH₃ + H₂O', target: 5, progress: 0, completed: false, type: 'nucleotides' },
+            { id: 'speed_run', title: 'Speed Synthesis', desc: 'Create 8 molecules in under 45 seconds', hint: 'Maximize energy AND use optimal gas mix. Go fast!', target: 8, progress: 0, completed: false, type: 'molecules_timed', timeLimit: 45, timeStarted: 0 }
+        ];
+        
+        const DISCOVERIES = [
+            { id: 'reducing_atmosphere', title: '💨 Reducing Atmosphere', text: 'Methane, ammonia, and hydrogen are "reducing" gases - they donate electrons, enabling organic chemistry.', unlocked: false, trigger: 'first_molecule' },
+            { id: 'water_essential', title: '💧 Water: Universal Solvent', text: 'Water allows molecules to move and collide. It also provides H and O atoms for organic synthesis.', unlocked: false, trigger: 'five_molecules' },
+            { id: 'oxygen_toxic', title: '🔴 Oxygen: Life\'s Paradox', text: 'Oxygen destroys organic molecules through oxidation. Early Earth had no free O₂ - it appeared only after photosynthetic life evolved!', unlocked: false, trigger: 'oxygen_disaster' },
+            { id: 'energy_needed', title: '⚡ Energy is Essential', text: 'Without energy sources (lightning/UV), no reactions occur. Energy breaks stable bonds, allowing new combinations.', unlocked: false, trigger: 'no_energy' },
+            { id: 'goldilocks_temp', title: '🌡️ Goldilocks Temperature', text: '70-90°C is optimal. Too cold = slow reactions. Too hot = molecules break apart. Volcanic Earth was perfect!', unlocked: false, trigger: 'optimal_conditions' },
+            { id: 'modern_earth_fail', title: '🌍 Why Life Can\'t Start Today', text: 'Modern Earth has 21% oxygen and no reducing gases. Organic molecules are immediately destroyed. Life now protects itself with enzymes!', unlocked: false, trigger: 'modern_earth' },
+            { id: 'amino_acid_importance', title: '🧬 Building Blocks of Proteins', text: 'Amino acids link together to form proteins - the molecular machines of life. All living things use the same 20 types!', unlocked: false, trigger: 'amino_acids' },
+            { id: 'nucleotide_importance', title: '🧬 Building Blocks of DNA', text: 'Nucleotides are the units that make up DNA and RNA - the molecules that store and transmit genetic information. Just 4 types encode all of life!', unlocked: false, trigger: 'nucleotides' },
+            { id: 'miller_urey', title: '🏆 The Miller-Urey Legacy', text: 'In 1952, Miller and Urey created amino acids in a week with this simple setup - proving life\'s chemistry is natural and inevitable!', unlocked: false, trigger: 'speed_run' }
+        ];
+        
+        let particles = [];
+        let organicMolecules = [];
+        let lightningBolts = [];
+        let bubbles = [];
+        let reactionFlashes = [];
+        let oxygenDestructions = [];
+        aminoAcidCount = 0;
+        nucleotideCount = 0;
+        let eventLog = [];
+        
+        const PRIMORDIAL = { lightning: 70, temperature: 80, methane: 35, ammonia: 30, hydrogen: 40, water: 50, uv: 80, oxygen: 0 };
+        const MODERN = { lightning: 40, temperature: 15, methane: 0, ammonia: 0, hydrogen: 0, water: 25, uv: 20, oxygen: 21 };
+        let params = { lightning: 50, temperature: 80, methane: 30, ammonia: 25, hydrogen: 35, water: 40, uv: 30, oxygen: 0 };
+        
+        const MAX_PARTICLES = 80;
+        const MAX_ORGANIC = 20;
+        const MAX_EVENTS = 8;
+        
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            colorMode(HSB, 360, 100, 100, 100);
+            calculateSimBounds();
+            setupEventListeners();
+            renderChallenges();
+            renderDiscoveries();
+            document.getElementById('info').style.display = 'block';
+        }
+        
+        function calculateSimBounds() {
+            let leftMargin = 300;
+            let rightMargin = 300;
+            let topMargin = 80;
+            let bottomMargin = 160;
+            simBounds.x = leftMargin;
+            simBounds.y = topMargin;
+            simBounds.w = width - leftMargin - rightMargin;
+            simBounds.h = height - topMargin - bottomMargin;
+            if (simBounds.w < 400) { simBounds.x = 50; simBounds.w = width - 100; }
+            if (simBounds.h < 300) { simBounds.y = 50; simBounds.h = height - 100; }
+        }
+        
+        function startSimulation(mode) {
+            gameMode = mode;
+            simulationStarted = true;
+            startTime = millis();
+            document.getElementById('info').style.display = 'none';
+            document.getElementById('controls').style.display = 'block';
+            document.getElementById('score-panel').style.display = 'flex';
+            document.getElementById('eventLog').style.display = 'block';
+            if (mode === 'challenge') {
+                document.getElementById('challenges').style.display = 'block';
+                document.getElementById('discoveries').style.display = 'block';
+                document.getElementById('modeChallenges').classList.add('active');
+                document.getElementById('modeSandbox').classList.remove('active');
+                activateChallenge(0);
+            } else {
+                document.getElementById('modeSandbox').classList.add('active');
+                document.getElementById('modeChallenges').classList.remove('active');
+            }
+            initializeParticles();
+            addEvent("Simulation started!", "system");
+        }
+        
+        function initializeParticles() {
+            particles = [];
+            organicMolecules = [];
+            lightningBolts = [];
+            bubbles = [];
+            reactionFlashes = [];
+            oxygenDestructions = [];
+            spawnParticles();
+        }
+        
+        function spawnParticles() {
+            let counts = {
+                methane: floor(params.methane * 0.2),
+                ammonia: floor(params.ammonia * 0.2),
+                hydrogen: floor(params.hydrogen * 0.2),
+                water: floor(params.water * 0.2),
+                oxygen: floor(params.oxygen * 0.25)
+            };
+            let total = Object.values(counts).reduce((a, b) => a + b, 0);
+            if (total > MAX_PARTICLES) {
+                let ratio = MAX_PARTICLES / total;
+                for (let key in counts) counts[key] = floor(counts[key] * ratio);
+            }
+            for (let type in counts) {
+                for (let i = 0; i < counts[type]; i++) {
+                    particles.push(new Particle(type));
+                }
+            }
+        }
+        
+        function adjustParticleCounts() {
+            let counts = { methane: 0, ammonia: 0, hydrogen: 0, water: 0, oxygen: 0 };
+            for (let p of particles) {
+                if (counts.hasOwnProperty(p.type)) {
+                    counts[p.type]++;
+                }
+            }
+            
+            let targets = {
+                methane: floor(params.methane * 0.2),
+                ammonia: floor(params.ammonia * 0.2),
+                hydrogen: floor(params.hydrogen * 0.2),
+                water: floor(params.water * 0.2),
+                oxygen: floor(params.oxygen * 0.25)
+            };
+            
+            let totalTarget = Object.values(targets).reduce((a, b) => a + b, 0);
+            if (totalTarget > MAX_PARTICLES) {
+                let ratio = MAX_PARTICLES / totalTarget;
+                for (let key in targets) targets[key] = floor(targets[key] * ratio);
+            }
+            
+            // Add missing particles (max 3 per frame)
+            let added = 0;
+            for (let type in targets) {
+                while (counts[type] < targets[type] && added < 3) {
+                    particles.push(new Particle(type));
+                    counts[type]++;
+                    added++;
+                }
+            }
+            
+            // Remove excess particles (max 3 per frame)
+            let removed = 0;
+            for (let type in targets) {
+                while (counts[type] > targets[type] && removed < 3) {
+                    for (let i = particles.length - 1; i >= 0; i--) {
+                        if (particles[i].type === type) {
+                            particles.splice(i, 1);
+                            counts[type]--;
+                            removed++;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        function draw() {
+            if (!simulationStarted) {
+                background(220, 30, 8);
+                drawAtmosphere();
+                drawOcean();
+                return;
+            }
+            
+            let bgHue = map(params.temperature, 0, 150, 230, 15);
+            background(bgHue, map(params.oxygen, 0, 50, 22, 35), 10);
+            
+            drawAtmosphere();
+            drawOcean();
+            
+            for (let i = oxygenDestructions.length - 1; i >= 0; i--) {
+                oxygenDestructions[i].display();
+                if (oxygenDestructions[i].isDone()) oxygenDestructions.splice(i, 1);
+            }
+            
+            for (let p of particles) {
+                p.update(params.temperature);
+                p.edges();
+                p.display();
+            }
+            
+            checkReactions();
+            checkOxygenDestruction();
+            
+            for (let i = organicMolecules.length - 1; i >= 0; i--) {
+                organicMolecules[i].update();
+                organicMolecules[i].display();
+                if (organicMolecules[i].isDead()) {
+                    organicMolecules.splice(i, 1);
+                }
+            }
+            
+            for (let i = reactionFlashes.length - 1; i >= 0; i--) {
+                reactionFlashes[i].display();
+                if (reactionFlashes[i].isDone()) reactionFlashes.splice(i, 1);
+            }
+            
+            if (random(100) < params.lightning * 0.035) {
+                lightningBolts.push(new Lightning());
+            }
+            for (let i = lightningBolts.length - 1; i >= 0; i--) {
+                lightningBolts[i].display();
+                if (lightningBolts[i].isDone()) lightningBolts.splice(i, 1);
+            }
+            
+            drawUVRadiation();
+            updateBubbles();
+            
+            // Adjust particles based on sliders every 30 frames
+            if (frameCount % 30 === 0) {
+                adjustParticleCounts();
+            }
+            
+            updateChallenges();
+            updateScorePanel();
+            drawVignette();
+        }
+        
+        function activateChallenge(index) {
+            if (index >= CHALLENGES.length) return;
+            currentChallenge = index;
+            let c = CHALLENGES[index];
+            c.active = true;
+            c.timeStarted = 0;
+            c.progress = 0;
+            if (c.type === 'molecules_timed') { c.timeStarted = millis(); totalOrganicMolecules = 0; }
+            document.getElementById('challengeTimer').classList.remove('active');
+            renderChallenges();
+            addEvent(`🎯 New challenge: ${c.title}`, 'challenge');
+        }
+        
+        function updateChallenges() {
+            if (gameMode !== 'challenge') return;
+            let c = CHALLENGES[currentChallenge];
+            if (!c || c.completed) return;
+            
+            switch (c.type) {
+                case 'molecules': c.progress = totalOrganicMolecules; break;
+                case 'oxygen_kills': c.progress = oxygenKills; break;
+                case 'no_energy_time':
+                    if (params.lightning === 0 && params.uv === 0) {
+                        if (c.timeStarted === 0) c.timeStarted = millis();
+                        c.progress = (millis() - c.timeStarted) / 1000;
+                    } else { c.timeStarted = 0; c.progress = 0; }
+                    break;
+                case 'primordial_match': c.progress = calculatePrimordialMatch(); break;
+                case 'modern_fail':
+                    if (params.oxygen >= 20 && params.methane <= 2 && params.ammonia <= 2 && params.hydrogen <= 2) {
+                        if (c.timeStarted === 0) c.timeStarted = millis();
+                        c.progress = (millis() - c.timeStarted) / 1000;
+                    } else { c.timeStarted = 0; c.progress = 0; }
+                    break;
+                case 'amino_acids': c.progress = aminoAcidCount; break;
+                case 'nucleotides': c.progress = nucleotideCount; break;
+                case 'molecules_timed':
+                    let elapsed = (millis() - c.timeStarted) / 1000;
+                    if (elapsed > c.timeLimit) { failChallenge(c); return; }
+                    c.progress = totalOrganicMolecules;
+                    updateTimerBar(1 - elapsed / c.timeLimit);
+                    break;
+            }
+            if (c.progress >= c.target && !c.completed) completeChallenge(c);
+            renderChallenges();
+        }
+        
+        function completeChallenge(challenge) {
+            challenge.completed = true;
+            document.getElementById('challengeTimer').classList.remove('active');
+            let discovery = DISCOVERIES.find(d => d.trigger === challenge.id);
+            if (discovery && !discovery.unlocked) {
+                discovery.unlocked = true;
+                addEvent(`📖 Discovery: ${discovery.title}`, 'discovery');
+                renderDiscoveries();
+            }
+            showAchievement(challenge.title, 'Challenge Complete!', false);
+            addEvent(`✅ Completed: ${challenge.title}`, 'challenge');
+            setTimeout(() => {
+                if (currentChallenge + 1 < CHALLENGES.length) activateChallenge(currentChallenge + 1);
+                else addEvent("🎉 All challenges completed!", 'challenge');
+            }, 2500);
+        }
+        
+        function failChallenge(challenge) {
+            showAchievement(challenge.title, 'Time\'s up! Try again.', true);
+            challenge.timeStarted = millis();
+            challenge.progress = 0;
+            totalOrganicMolecules = 0;
+            document.getElementById('challengeTimer').classList.remove('active');
+        }
+        
+        function showAchievement(title, desc, isFail) {
+            let popup = document.getElementById('achievement-popup');
+            popup.querySelector('.achievement-title').textContent = title;
+            popup.querySelector('.achievement-desc').textContent = desc;
+            popup.querySelector('.achievement-icon').textContent = isFail ? '❌' : '🏆';
+            popup.classList.toggle('fail', isFail);
+            popup.classList.add('show');
+            setTimeout(() => popup.classList.remove('show'), 3500);
+        }
+        
+        function updateTimerBar(percent) {
+            document.getElementById('challengeTimer').classList.add('active');
+            document.getElementById('timerFill').style.width = (percent * 100) + '%';
+        }
+        
+        function calculatePrimordialMatch() {
+            let diffs = [
+                Math.abs(params.lightning - PRIMORDIAL.lightning) / 100,
+                Math.abs(params.temperature - PRIMORDIAL.temperature) / 150,
+                Math.abs(params.methane - PRIMORDIAL.methane) / 100,
+                Math.abs(params.ammonia - PRIMORDIAL.ammonia) / 100,
+                Math.abs(params.hydrogen - PRIMORDIAL.hydrogen) / 100,
+                Math.abs(params.water - PRIMORDIAL.water) / 100,
+                Math.abs(params.uv - PRIMORDIAL.uv) / 100,
+                Math.abs(params.oxygen - PRIMORDIAL.oxygen) / 40
+            ];
+            return Math.round((1 - diffs.reduce((a, b) => a + b, 0) / diffs.length) * 100);
+        }
+        
+        function renderChallenges() {
+            let html = '';
+            for (let i = 0; i < CHALLENGES.length; i++) {
+                let c = CHALLENGES[i];
+                let status = c.completed ? 'completed' : (i === currentChallenge ? 'active' : '');
+                let badge = c.completed ? '✅' : (i === currentChallenge ? '🎯' : '🔒');
+                let progress = Math.min(c.progress / c.target * 100, 100);
+                let progressText = c.type.includes('time') && !c.completed ? `${Math.floor(c.progress)}s / ${c.target}s` : `${Math.floor(c.progress)} / ${c.target}`;
+                html += `<div class="challenge-card ${status}"><div class="challenge-header"><span class="challenge-title">${c.title}</span><span class="challenge-badge">${badge}</span></div><div class="challenge-desc">${c.desc}</div><div class="challenge-progress"><div class="challenge-progress-fill ${c.completed ? 'complete' : ''}" style="width: ${progress}%"></div></div><div class="challenge-stats">${progressText}</div><div class="challenge-hint">💡 ${c.hint}</div></div>`;
+            }
+            document.getElementById('challengeList').innerHTML = html;
+        }
+        
+        function renderDiscoveries() {
+            let unlocked = DISCOVERIES.filter(d => d.unlocked).length;
+            document.getElementById('discoveriesCount').textContent = `${unlocked}/${DISCOVERIES.length}`;
+            let html = '';
+            let sorted = [...DISCOVERIES].sort((a, b) => b.unlocked - a.unlocked);
+            for (let d of sorted) {
+                html += `<div class="discovery-item ${d.unlocked ? '' : 'locked'}"><div class="discovery-title">${d.unlocked ? d.title : '🔒 ???'}</div><div class="discovery-text">${d.unlocked ? d.text : 'Complete challenges to unlock...'}</div></div>`;
+            }
+            document.getElementById('discoveryList').innerHTML = html;
+        }
+        
+        function updateScorePanel() {
+            document.getElementById('totalMolecules').textContent = totalOrganicMolecules;
+            let elapsed = floor((millis() - startTime) / 1000);
+            document.getElementById('timeElapsed').textContent = `${floor(elapsed/60)}:${(elapsed%60).toString().padStart(2,'0')}`;
+        }
+        
+        function checkReactions() {
+            let prob = calculateReactionProbability();
+            let checks = min(10, floor(particles.length / 2));
+            for (let n = 0; n < checks; n++) {
+                if (particles.length < 2) break;
+                let i = floor(random(particles.length));
+                let j = floor(random(particles.length));
+                if (i === j) continue;
+                let p1 = particles[i], p2 = particles[j];
+                if (p1.type === 'oxygen' || p2.type === 'oxygen') continue;
+                let d = dist(p1.pos.x, p1.pos.y, p2.pos.x, p2.pos.y);
+                if (d < 35 && random(1000) < prob) {
+                    let type = getReactionType(p1.type, p2.type);
+                    if (type && organicMolecules.length < MAX_ORGANIC) {
+                        let mx = (p1.pos.x + p2.pos.x) / 2;
+                        let my = (p1.pos.y + p2.pos.y) / 2;
+                        organicMolecules.push(new OrganicMolecule(mx, my, type));
+                        reactionFlashes.push(new ReactionFlash(mx, my));
+                        totalOrganicMolecules++;
+                        if (type === 'aminoAcid') aminoAcidCount++;
+                        if (type === 'nucleotide') nucleotideCount++;
+                        addEvent(`${getSymbol(p1.type)} + ${getSymbol(p2.type)} → ${type === 'aminoAcid' ? 'Amino Acid' : 'Nucleotide'}`, "reaction");
+                        if (i > j) { particles.splice(i, 1); particles.splice(j, 1); }
+                        else { particles.splice(j, 1); particles.splice(i, 1); }
+                        break;
+                    }
+                }
+            }
+        }
+        
+        function checkOxygenDestruction() {
+            // Need at least some oxygen
+            if (params.oxygen < 2) return;
+            
+            // Only check if we have organic molecules
+            if (organicMolecules.length === 0) return;
+            
+            // Get all oxygen particles
+            let oxygenParticles = particles.filter(p => p.type === 'oxygen');
+            
+            // No oxygen particles? Nothing to do
+            if (oxygenParticles.length === 0) return;
+            
+            // Base destruction chance scales with oxygen level
+            let baseChance = map(params.oxygen, 0, 100, 0.5, 5);
+            
+            // Check each organic molecule against nearby oxygen
+            for (let i = organicMolecules.length - 1; i >= 0; i--) {
+                let mol = organicMolecules[i];
+                
+                // Check against multiple oxygen particles
+                for (let oxy of oxygenParticles) {
+                    let d = dist(oxy.pos.x, oxy.pos.y, mol.pos.x, mol.pos.y);
+                    
+                    // Collision radius increases with oxygen concentration
+                    let collisionRadius = map(params.oxygen, 0, 100, 35, 70);
+                    
+                    if (d < collisionRadius) {
+                        // Chance increases as oxygen gets closer
+                        let proximityBonus = map(d, 0, collisionRadius, 3, 1);
+                        let totalChance = baseChance * proximityBonus;
+                        
+                        if (random(100) < totalChance) {
+                            // Destroy the molecule!
+                            oxygenDestructions.push(new OxygenDestruction(mol.pos.x, mol.pos.y));
+                            
+                        let molType = mol.moleculeType === 'aminoAcid' ? 'amino acid' : 'nucleotide';
+                        organicMolecules.splice(i, 1);
+                        oxygenKills++;
+
+                        // Decrease the molecule count when destroyed
+                        if (totalOrganicMolecules > 0) {
+                            totalOrganicMolecules--;
+                        }
+
+                        // Also decrease amino acid count if it was an amino acid
+                        if (mol.moleculeType === 'aminoAcid' && aminoAcidCount > 0) {
+                            aminoAcidCount--;
+                        }
+
+                        // Also decrease nucleotide count if it was a nucleotide
+                        if (mol.moleculeType === 'nucleotide' && nucleotideCount > 0) {
+                            nucleotideCount--;
+                        }
+
+                        addEvent(`⚠️ O₂ oxidized a ${molType}!`, "warning");                            
+                        break; // Move to next molecule
+                        }
+                    }
+                }
+            }
+        }
+        
+        function calculateReactionProbability() {
+            let temp = max(0, 1 - pow(abs(params.temperature - 80) / 80, 1.4));
+            let energy = (params.lightning * 0.6 + params.uv * 0.4) / 100;
+            let gas = max(0, min(params.methane, params.ammonia, params.hydrogen) / 35);
+            let water = max(0, 1 - abs(params.water - 50) / 55);
+            let oxyPenalty = max(0, 1 - params.oxygen / 28);
+            return (temp * 0.25 + energy * 0.28 + gas * 0.25 + water * 0.22) * oxyPenalty * 28;
+        }
+        
+        function getReactionType(t1, t2) {
+            let amino = [['methane','ammonia'], ['ammonia','hydrogen']];
+            let nucleo = [['methane','water'], ['hydrogen','water'], ['methane','hydrogen'], ['ammonia','water']];
+            for (let p of amino) if ((p[0]===t1 && p[1]===t2) || (p[0]===t2 && p[1]===t1)) return 'aminoAcid';
+            for (let p of nucleo) if ((p[0]===t1 && p[1]===t2) || (p[0]===t2 && p[1]===t1)) return 'nucleotide';
+            return null;
+        }
+        
+        function getSymbol(type) {
+            return { methane:'CH₄', ammonia:'NH₃', hydrogen:'H₂', water:'H₂O', oxygen:'O₂' }[type] || type;
+        }
+        
+        function drawAtmosphere() {
+            let h = height * 0.55;
+            let oxyShift = map(params.oxygen, 0, 100, 0, -25);
+            for (let i = 0; i < h; i += 5) {
+                let t = map(i, 0, h, 0, 1);
+                stroke(lerp(250+oxyShift, 200+oxyShift, t), lerp(45, 35, t), lerp(16, 5, t));
+                strokeWeight(6);
+                line(0, i, width, i);
+            }
+        }
+        
+        function drawOcean() {
+            let top = height * 0.55;
+            for (let i = top; i < height; i += 4) {
+                let t = map(i, top, height, 0, 1);
+                stroke(lerp(200, 215, t), lerp(55, 70, t), lerp(32, 10, t), 80);
+                strokeWeight(5);
+                line(0, i, width, i);
+            }
+            noFill();
+            stroke(200, 35, 55, 40);
+            strokeWeight(3);
+            beginShape();
+            for (let x = 0; x <= width; x += 10) {
+                vertex(x, top + sin(x*0.012 + frameCount*0.018)*5 + sin(x*0.006 + frameCount*0.01)*3);
+            }
+            endShape();
+        }
+        
+        function drawUVRadiation() {
+            if (params.uv > 12) {
+                for (let i = 0; i < params.uv * 0.04; i++) {
+                    stroke(280, 65, 100, map(params.uv, 0, 100, 0, 12));
+                    strokeWeight(random(1, 2));
+                    let x = random(simBounds.x, simBounds.x + simBounds.w);
+                    line(x, simBounds.y, x + random(-8, 8), simBounds.y + random(20, 60));
+                }
+            }
+        }
+        
+        function updateBubbles() {
+            let oceanY = simBounds.y + simBounds.h * 0.5;
+            if (frameCount % 30 === 0 && params.water > 12 && bubbles.length < 10) {
+                bubbles.push({ x: random(simBounds.x, simBounds.x + simBounds.w), y: simBounds.y + simBounds.h, size: random(3, 7), speed: random(0.3, 0.8), wobble: random(TWO_PI) });
+            }
+            for (let i = bubbles.length - 1; i >= 0; i--) {
+                let b = bubbles[i];
+                b.y -= b.speed;
+                b.wobble += 0.03;
+                noFill();
+                stroke(200, 25, 85, 15);
+                ellipse(b.x + sin(b.wobble) * 2, b.y, b.size);
+                if (b.y < oceanY) bubbles.splice(i, 1);
+            }
+        }
+        
+        function drawVignette() {
+            let ctx = drawingContext;
+            let g = ctx.createRadialGradient(width/2, height/2, height*0.2, width/2, height/2, height);
+            g.addColorStop(0, 'rgba(0,0,0,0)');
+            g.addColorStop(1, 'rgba(0,0,0,0.5)');
+            ctx.fillStyle = g;
+            ctx.fillRect(0, 0, width, height);
+        }
+        
+        class Particle {
+            constructor(type) {
+                this.type = type;
+                this.pos = createVector(
+                    random(simBounds.x + 20, simBounds.x + simBounds.w - 20),
+                    random(simBounds.y + 20, simBounds.y + simBounds.h - 20)
+                );
+                this.vel = p5.Vector.random2D().mult(random(0.3, 0.6));
+                const cfg = {
+                    methane: { col: [0, 50, 88], size: 14, symbol: 'CH₄' },
+                    ammonia: { col: [175, 50, 78], size: 12, symbol: 'NH₃' },
+                    hydrogen: { col: [0, 0, 88], size: 8, symbol: 'H₂' },
+                    water: { col: [210, 45, 92], size: 10, symbol: 'H₂O' },
+                    oxygen: { col: [0, 60, 85], size: 11, symbol: 'O₂', danger: true }
+                };
+                let c = cfg[type];
+                this.col = color(c.col[0], c.col[1], c.col[2]);
+                this.size = c.size;
+                this.symbol = c.symbol;
+                this.danger = c.danger || false;
+            }
+            
+            update(temp) {
+                this.vel.x += random(-0.05, 0.05);
+                this.vel.y += random(-0.05, 0.05);
+                let maxSpeed = map(temp, 0, 150, 0.4, 1.2);
+                this.vel.limit(maxSpeed);
+                this.pos.add(this.vel);
+            }
+            
+            edges() {
+                let padding = 15;
+                let left = simBounds.x + padding;
+                let right = simBounds.x + simBounds.w - padding;
+                let top = simBounds.y + padding;
+                let bottom = simBounds.y + simBounds.h - padding;
+                if (this.pos.x < left) { this.pos.x = left; this.vel.x *= -1; }
+                if (this.pos.x > right) { this.pos.x = right; this.vel.x *= -1; }
+                if (this.pos.y < top) { this.pos.y = top; this.vel.y *= -1; }
+                if (this.pos.y > bottom) { this.pos.y = bottom; this.vel.y *= -1; }
+            }
+            
+            display() {
+                push();
+                translate(this.pos.x, this.pos.y);
+                let h = hue(this.col), s = saturation(this.col), b = brightness(this.col);
+                noStroke();
+                fill(h, s, b, 10);
+                ellipse(0, 0, this.size * 2.5);
+                fill(h, s, b, 18);
+                ellipse(0, 0, this.size * 1.6);
+                fill(h, s * 0.75, b);
+                stroke(h, s, min(b + 10, 100));
+                strokeWeight(1.5);
+                ellipse(0, 0, this.size);
+                if (this.danger) {
+                    noFill();
+                    stroke(0, 60, 92, 30 + sin(frameCount * 0.1) * 15);
+                    strokeWeight(1.5);
+                    ellipse(0, 0, this.size * 1.7);
+                }
+                noStroke();
+                fill(0, 0, 100, 25);
+                ellipse(-this.size * 0.1, -this.size * 0.1, this.size * 0.25);
+                // Always show label
+                fill(0, 0, 100, 55);
+                textSize(6);
+                textAlign(CENTER);
+                text(this.symbol, 0, this.size * 0.7 + 6);
+                pop();
+            }
+        }
+        
+        class OrganicMolecule {
+            constructor(x, y, type) {
+                this.pos = createVector(x, y);
+                this.vel = p5.Vector.random2D().mult(0.5);
+                this.alive = true; // Use boolean instead of life counter
+                this.rotation = random(TWO_PI);
+                this.rotSpeed = random(-0.01, 0.01);
+                this.moleculeType = type;
+                this.pulseOffset = random(TWO_PI); // For unique pulsing
+                if (type === 'aminoAcid') { 
+                    this.col = color(330, 45, 92); 
+                    this.size = 24; 
+                    this.label = "AMINO ACID"; 
+                } else { 
+                    this.col = color(160, 55, 78); 
+                    this.size = 22; 
+                    this.label = "NUCLEOTIDE"; 
+                }
+            }
+            
+            update() {
+                this.vel.x += random(-0.02, 0.02);
+                this.vel.y += random(-0.02, 0.02);
+                this.vel.limit(0.5);
+                this.pos.add(this.vel);
+                this.vel.mult(0.99);
+                
+                // NO natural decay - molecules persist until destroyed by oxygen
+                
+                this.rotation += this.rotSpeed;
+                let padding = 25;
+                let left = simBounds.x + padding;
+                let right = simBounds.x + simBounds.w - padding;
+                let top = simBounds.y + simBounds.h * 0.4;
+                let bottom = simBounds.y + simBounds.h - padding;
+                if (this.pos.x < left || this.pos.x > right) this.vel.x *= -1;
+                if (this.pos.y < top || this.pos.y > bottom) this.vel.y *= -1;
+                this.pos.x = constrain(this.pos.x, left, right);
+                this.pos.y = constrain(this.pos.y, top, bottom);
+            }
+            
+            display() {
+                push();
+                translate(this.pos.x, this.pos.y);
+                
+                let h = hue(this.col), s = saturation(this.col), b = brightness(this.col);
+                let pulse = sin(frameCount * 0.035 + this.pulseOffset) * 0.1 + 1;
+                
+                // Glow effects
+                noStroke();
+                fill(h, s, b, 5);
+                ellipse(0, 0, this.size * 3 * pulse);
+                fill(h, s, b, 10);
+                ellipse(0, 0, this.size * 1.8 * pulse);
+                
+                // Main shape
+                push();
+                rotate(this.rotation);
+                stroke(h, s, b, 100);
+                strokeWeight(2);
+                noFill();
+                if (this.moleculeType === 'aminoAcid') {
+                    // Hexagon shape for amino acid
+                    beginShape();
+                    for (let i = 0; i < 6; i++) {
+                        vertex(cos(TWO_PI/6*i - PI/6) * this.size*0.4, sin(TWO_PI/6*i - PI/6) * this.size*0.4);
+                    }
+                    endShape(CLOSE);
+                    line(0, -this.size*0.4, 0, -this.size*0.65);
+                    line(this.size*0.34, this.size*0.2, this.size*0.55, this.size*0.32);
+                } else {
+                    // Pentagon shape for nucleotide
+                    beginShape();
+                    for (let i = 0; i < 5; i++) {
+                        vertex(cos(TWO_PI/5*i - PI/2) * this.size*0.35, sin(TWO_PI/5*i - PI/2) * this.size*0.35);
+                    }
+                    endShape(CLOSE);
+                    ellipse(0, this.size*0.5, this.size*0.4, this.size*0.18);
+                }
+                pop();
+                
+                // Center dot
+                noStroke();
+                fill(h, s - 18, 100, 70);
+                ellipse(0, 0, this.size * 0.18);
+                
+                // Label - ALWAYS visible
+                fill(0, 0, 100, 80);
+                textSize(8);
+                textAlign(CENTER);
+                textStyle(BOLD);
+                text(this.label, 0, -this.size - 8);
+                
+                pop();
+            }
+            
+            // Mark as dead (called by oxygen destruction)
+            kill() {
+                this.alive = false;
+            }
+            
+            isDead() { 
+                return !this.alive; 
+            }
+        }
+        
+        class OxygenDestruction {
+            constructor(x, y) {
+                this.x = x; this.y = y;
+                this.alpha = 100; this.size = 15;
+                this.bits = Array(6).fill().map((_, i) => ({ angle: TWO_PI/6*i, dist: 0, sz: random(2, 5) }));
+            }
+            display() {
+                push();
+                translate(this.x, this.y);
+                noStroke();
+                fill(0, 70, 92, this.alpha * 0.25);
+                ellipse(0, 0, this.size * 1.8);
+                fill(0, 60, 85, this.alpha);
+                for (let b of this.bits) { ellipse(cos(b.angle) * b.dist, sin(b.angle) * b.dist, b.sz); b.dist += 1.5; }
+                stroke(0, 70, 92, this.alpha);
+                strokeWeight(2.5);
+                line(-7, -7, 7, 7);
+                line(-7, 7, 7, -7);
+                pop();
+                this.alpha -= 3.5;
+                this.size += 0.7;
+            }
+            isDone() { return this.alpha <= 0; }
+        }
+        
+        class ReactionFlash {
+            constructor(x, y) { this.x = x; this.y = y; this.alpha = 100; this.rings = [{ size: 8, alpha: 100 }, { size: 18, alpha: 75 }, { size: 28, alpha: 50 }]; }
+            display() {
+                noFill();
+                for (let r of this.rings) { stroke(50, 65, 100, r.alpha * (this.alpha / 100)); strokeWeight(2); ellipse(this.x, this.y, r.size); r.size += 2; r.alpha -= 1.2; }
+                noStroke();
+                fill(50, 45, 100, this.alpha * 0.35);
+                ellipse(this.x, this.y, 10);
+                fill(50, 18, 100, this.alpha);
+                ellipse(this.x, this.y, 5);
+                this.alpha -= 3;
+            }
+            isDone() { return this.alpha <= 0; }
+        }
+        
+        class Lightning {
+            constructor() {
+                this.x = random(simBounds.x + 50, simBounds.x + simBounds.w - 50);
+                this.points = [];
+                this.alpha = 100;
+                let y = simBounds.y, x = this.x;
+                let targetY = simBounds.y + simBounds.h * 0.5;
+                while (y < targetY) { this.points.push({ x, y }); y += random(15, 40); x += random(-25, 25); }
+                this.points.push({ x, y });
+            }
+            display() {
+                if (this.alpha > 85) {
+                    let end = this.points[this.points.length - 1];
+                    for (let p of particles) { if (dist(p.pos.x, p.pos.y, end.x, end.y) < 70) p.vel.mult(1.2); }
+                }
+                for (let [w, h, s, b, a] of [[14, 55, 8, 100, 0.1], [3, 50, 8, 100, 1], [1.2, 0, 0, 100, 1]]) {
+                    stroke(h, s, b, this.alpha * a);
+                    strokeWeight(w);
+                    noFill();
+                    beginShape();
+                    for (let pt of this.points) vertex(pt.x, pt.y);
+                    endShape();
+                }
+                this.alpha -= 4;
+            }
+            isDone() { return this.alpha <= 0; }
+        }
+        
+        function addEvent(text, type) {
+            let time = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            eventLog.unshift({ time, text, type });
+            if (eventLog.length > MAX_EVENTS) eventLog.pop();
+            document.getElementById('eventList').innerHTML = eventLog.map(e => {
+                let cls = { reaction: 'event-result', warning: 'event-warning-text', discovery: 'event-discovery-text', challenge: 'event-challenge-text' }[e.type] || 'event-text';
+                let evtCls = { warning: 'warning', discovery: 'discovery', challenge: 'challenge' }[e.type] || '';
+                return `<div class="event ${evtCls}"><span class="event-time">${e.time}</span> <span class="${cls}">${e.text}</span></div>`;
+            }).join('');
+        }
+        
+        function setPreset(preset) {
+            let v = preset === 'primordial' ? PRIMORDIAL : MODERN;
+            for (let k in v) { params[k] = v[k]; let s = document.getElementById(k); if (s) s.value = v[k]; }
+            updateAllDisplays();
+            if (simulationStarted) { addEvent(`Loaded ${preset === 'primordial' ? 'Primordial' : 'Modern'} Earth preset`, "system"); }
+        }
+        
+        function updateAllDisplays() {
+            document.getElementById('lightningVal').textContent = params.lightning + '%';
+            document.getElementById('tempVal').textContent = params.temperature + '°C';
+            document.getElementById('methaneVal').textContent = params.methane + '%';
+            document.getElementById('ammoniaVal').textContent = params.ammonia + '%';
+            document.getElementById('hydrogenVal').textContent = params.hydrogen + '%';
+            document.getElementById('waterVal').textContent = params.water + '%';
+            document.getElementById('uvVal').textContent = params.uv + '%';
+            document.getElementById('oxygenVal').textContent = params.oxygen + '%';
+            document.getElementById('oxygenWarning').classList.toggle('visible', params.oxygen > 5);
+        }
+        
+        function setupEventListeners() {
+            document.getElementById('startSandbox').addEventListener('click', () => startSimulation('sandbox'));
+            document.getElementById('startChallenge').addEventListener('click', () => startSimulation('challenge'));
+            document.getElementById('modeSandbox').addEventListener('click', () => {
+                gameMode = 'sandbox';
+                document.getElementById('modeSandbox').classList.add('active');
+                document.getElementById('modeChallenges').classList.remove('active');
+                document.getElementById('challenges').style.display = 'none';
+                document.getElementById('discoveries').style.display = 'none';
+            });
+            document.getElementById('modeChallenges').addEventListener('click', () => {
+                gameMode = 'challenge';
+                document.getElementById('modeChallenges').classList.add('active');
+                document.getElementById('modeSandbox').classList.remove('active');
+                document.getElementById('challenges').style.display = 'block';
+                document.getElementById('discoveries').style.display = 'block';
+                if (!CHALLENGES[0].completed && currentChallenge === 0) activateChallenge(0);
+            });
+            const sliders = ['lightning', 'temperature', 'methane', 'ammonia', 'hydrogen', 'water', 'uv', 'oxygen'];
+            const displays = ['lightningVal', 'tempVal', 'methaneVal', 'ammoniaVal', 'hydrogenVal', 'waterVal', 'uvVal', 'oxygenVal'];
+            const suffixes = ['%', '°C', '%', '%', '%', '%', '%', '%'];
+            sliders.forEach((id, i) => {
+                document.getElementById(id).addEventListener('input', function() {
+                    params[id] = parseInt(this.value);
+                    document.getElementById(displays[i]).textContent = this.value + suffixes[i];
+                    if (id === 'oxygen') document.getElementById('oxygenWarning').classList.toggle('visible', params.oxygen > 5);
+                });
+            });
+            document.getElementById('presetPrimordial').addEventListener('click', () => setPreset('primordial'));
+            document.getElementById('presetModern').addEventListener('click', () => setPreset('modern'));
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                if (simulationStarted) {
+                    totalOrganicMolecules = 0;
+                    oxygenKills = 0;
+                    aminoAcidCount = 0;
+                    initializeParticles();
+                    addEvent("Simulation reset", "system");
+                    let c = CHALLENGES[currentChallenge];
+                    if (c && c.type === 'molecules_timed' && !c.completed) { c.timeStarted = millis(); c.progress = 0; }
+                }
+            });
+        }
+        
+        function windowResized() { resizeCanvas(windowWidth, windowHeight); calculateSimBounds(); }
+    </script>
+</body>
+</html>
